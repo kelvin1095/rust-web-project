@@ -1,10 +1,15 @@
 use axum::{
     body::Bytes,
-    // extract::MatchedPath,
+    extract::State,
     http::{HeaderMap, Request},
-    response::Response,
-    Router
+    response::{Response, IntoResponse},
+    routing::get,
+    Router,
 };
+use axum::http::StatusCode;
+
+use serde::{Deserialize, Serialize};
+use sqlx::postgres::{PgPool, PgPoolOptions};
 use tokio::signal;
 use tower_http::{
     classify::ServerErrorsFailureClass,
@@ -16,25 +21,78 @@ use tracing::{info_span, Span};
 use std::net::SocketAddr;
 use std::time::Duration;
 
+#[derive(Serialize, Deserialize, Debug, sqlx::FromRow)]
+struct Pokemon {
+    pokedexnumber: i32,
+    name: String, 
+    form: Option<String>,
+    type1: Option<String>,
+    type2: Option<String>,
+    ability1: Option<String>,
+    ability2: Option<String>,
+    hiddenability: Option<String>,
+    hp: Option<i32>,
+    att: Option<i32>,
+    def: Option<i32>,
+    spa: Option<i32>,
+    spd: Option<i32>,
+    spe: Option<i32>,
+    height: Option<String>,
+    weight: Option<String>,
+}
+
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), sqlx::Error> {
+    // Initialise subscriber that listens and prints logs
     tracing_subscriber::fmt()
         .init();
 
     // Specify the IP address and port to listen on
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
+    let database_url = "postgresql://postgres:password@localhost/postgres";
+
+    // set up connection pool
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .acquire_timeout(Duration::from_secs(3))
+        .connect(&database_url)
+        .await
+        .expect("can't connect to database");
+
     // Create an Axum application
-    let mut app = Router::new();
+    let mut app = Router::new()
+        .route("/api/pokemon", get(add_sql_route))
+        .with_state(pool);
+
     app = add_static_routes(app);
     app = add_tracing(app);
-            
+    
+    {
+        let database_url = "postgresql://postgres:password@localhost/postgres";
+
+        // Create a connection pool
+        let pool = PgPool::connect(database_url).await?;
+
+        // Define your SQL query
+        let query_result = sqlx::query_as::<_, Pokemon>("SELECT * FROM pokemon WHERE PokedexNumber = $1")
+            .bind(6)
+            .fetch_all(&pool)
+            .await
+            .expect("Failed to fetch data from the database");
+
+        let json_result = serde_json::to_string(&query_result).unwrap();
+        println!("Returned results: {}", json_result);
+    }
+
     // Start the Axum server
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .with_graceful_shutdown(shutdown_signal())
         .await
         .expect("Server failed to start");
+
+    return Ok(())
 }
 
 fn add_static_routes(router: Router) -> Router {
@@ -43,6 +101,18 @@ fn add_static_routes(router: Router) -> Router {
 
     return router
         .nest_service("/", serve_dir);
+}
+
+async fn add_sql_route(State(pool): State<PgPool>) -> impl IntoResponse {
+    let query_result = sqlx::query_as::<_, Pokemon>("SELECT * FROM pokemon WHERE PokedexNumber = $1")
+        .bind(1)
+        .fetch_all(&pool)
+        .await
+        .expect("Failed to fetch data from the database");
+
+    let json_result = serde_json::to_string(&query_result).unwrap();
+
+    return (StatusCode::OK, json_result);
 }
 
 fn add_tracing(router: Router) -> Router {
