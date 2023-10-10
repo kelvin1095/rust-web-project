@@ -11,3 +11,6 @@ Things to accompilsh:
 - Log requests out
 - Able to make requests to postgres db
 - Utilise multithreading
+- User Authentication
+
+https://docs.rs/tower-http/latest/tower_http/trace/
