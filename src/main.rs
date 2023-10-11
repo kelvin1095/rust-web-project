@@ -1,6 +1,6 @@
 use axum::{
     body::Bytes,
-    extract::State,
+    extract::{State, Path},
     http::{HeaderMap, Request},
     response::{Response, IntoResponse},
     routing::get,
@@ -62,28 +62,11 @@ async fn main() -> Result<(), sqlx::Error> {
 
     // Create an Axum application
     let mut app = Router::new()
-        .route("/api/pokemon", get(add_sql_route))
+        .route("/api/pokemon/:id", get(add_sql_route))
         .with_state(pool);
 
     app = add_static_routes(app);
     app = add_tracing(app);
-    
-    {
-        let database_url = "postgresql://postgres:password@localhost/postgres";
-
-        // Create a connection pool
-        let pool = PgPool::connect(database_url).await?;
-
-        // Define your SQL query
-        let query_result = sqlx::query_as::<_, Pokemon>("SELECT * FROM pokemon WHERE PokedexNumber = $1")
-            .bind(6)
-            .fetch_all(&pool)
-            .await
-            .expect("Failed to fetch data from the database");
-
-        let json_result = serde_json::to_string(&query_result).unwrap();
-        println!("Returned results: {}", json_result);
-    }
 
     // Start the Axum server
     axum::Server::bind(&addr)
@@ -103,14 +86,14 @@ fn add_static_routes(router: Router) -> Router {
         .nest_service("/", serve_dir);
 }
 
-async fn add_sql_route(State(pool): State<PgPool>) -> impl IntoResponse {
+async fn add_sql_route(Path(id): Path<i32>, State(pool): State<PgPool>) -> impl IntoResponse {
     let query_result = sqlx::query_as::<_, Pokemon>("SELECT * FROM pokemon WHERE PokedexNumber = $1")
-        .bind(1)
+        .bind(id)
         .fetch_all(&pool)
         .await
         .expect("Failed to fetch data from the database");
 
-    let json_result = serde_json::to_string(&query_result).unwrap();
+    let json_result = serde_json::to_string_pretty(&query_result).unwrap();
 
     return (StatusCode::OK, json_result);
 }
@@ -127,7 +110,7 @@ fn add_tracing(router: Router) -> Router {
                 //     .map(MatchedPath::as_str);
 
                 info_span!(
-                    "http_request",
+                    "http_request ",
                     // method = ?request.method(),
                     uri = ?request.uri().path(),
                     // user_agent = ?request.headers().get("User-Agent"),
