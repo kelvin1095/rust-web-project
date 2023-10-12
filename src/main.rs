@@ -1,15 +1,11 @@
 use axum::{
     body::Bytes,
-    extract::{State, Path},
     http::{HeaderMap, Request},
-    response::{Response, IntoResponse},
+    response::Response,
     routing::get,
     Router,
 };
-use axum::http::StatusCode;
-
-use serde::{Deserialize, Serialize};
-use sqlx::postgres::{PgPool, PgPoolOptions};
+use sqlx::postgres::PgPoolOptions;
 use tokio::signal;
 use tower_http::{
     classify::ServerErrorsFailureClass,
@@ -21,25 +17,8 @@ use tracing::{info_span, Span};
 use std::net::SocketAddr;
 use std::time::Duration;
 
-#[derive(Serialize, Deserialize, Debug, sqlx::FromRow)]
-struct Pokemon {
-    pokedexnumber: i32,
-    name: String, 
-    form: Option<String>,
-    type1: Option<String>,
-    type2: Option<String>,
-    ability1: Option<String>,
-    ability2: Option<String>,
-    hiddenability: Option<String>,
-    hp: Option<i32>,
-    att: Option<i32>,
-    def: Option<i32>,
-    spa: Option<i32>,
-    spd: Option<i32>,
-    spe: Option<i32>,
-    height: Option<String>,
-    weight: Option<String>,
-}
+mod db;
+use crate::db::add_sql_route;
 
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
@@ -84,18 +63,6 @@ fn add_static_routes(router: Router) -> Router {
 
     return router
         .nest_service("/", serve_dir);
-}
-
-async fn add_sql_route(Path(id): Path<i32>, State(pool): State<PgPool>) -> impl IntoResponse {
-    let query_result = sqlx::query_as::<_, Pokemon>("SELECT * FROM pokemon WHERE PokedexNumber = $1")
-        .bind(id)
-        .fetch_all(&pool)
-        .await
-        .expect("Failed to fetch data from the database");
-
-    let json_result = serde_json::to_string_pretty(&query_result).unwrap();
-
-    return (StatusCode::OK, json_result);
 }
 
 fn add_tracing(router: Router) -> Router {
