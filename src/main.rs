@@ -17,8 +17,8 @@ use tracing::{info_span, Span};
 use std::net::SocketAddr;
 use std::time::Duration;
 
-mod db;
-use crate::db::add_sql_route;
+mod route;
+use crate::route::add_sql_route;
 
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
