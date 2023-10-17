@@ -28,15 +28,14 @@ struct Pokemon {
 }
 
 pub async fn add_sql_route(Path(id): Path<i32>, State(pool): State<PgPool>) -> impl IntoResponse {
-  let query_result = sqlx::query_as::<_, Pokemon>("SELECT * FROM pokemon WHERE PokedexNumber = $1")
-    .bind(id)
-    .fetch_all(&pool)
-    .await
-    .expect("Failed to fetch data from the database");
+    let query_result = sqlx::query_as::<_, Pokemon>("SELECT * FROM pokemon WHERE PokedexNumber = $1")
+        .bind(id)
+        .fetch_all(&pool)
+        .await
+        .expect("Failed to fetch data from the database");
 
-  println!("sql fetched: {:?}", query_result);
+    let json_result = serde_json::to_string_pretty(&query_result).unwrap();
 
-  let json_result = serde_json::to_string_pretty(&query_result).unwrap();
-
-  return (StatusCode::OK, json_result);
+    return (StatusCode::OK, json_result);
 }
+

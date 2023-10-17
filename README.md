@@ -21,7 +21,8 @@ https://docs.rs/axum/latest/axum/extract/index.html
 
 I think what would be very fun is to create a web app that helps learn language. Some kind of mix and match: One word in one language matches to the same word in another language.
 
-<!-- DROP TABLE pokemon;
+<!--
+DROP TABLE pokemon;
 
 CREATE TABLE pokemon (
   PokedexNumber INT,
@@ -43,4 +44,5 @@ CREATE TABLE pokemon (
   PokemonImageFilename VARCHAR(255)
   );
 
-\COPY pokemon FROM 'PokemonStats.csv' WITH (FORMAT csv, HEADER true); -->
+\COPY pokemon FROM 'PokemonStats.csv' WITH (FORMAT csv, HEADER true);
+-->

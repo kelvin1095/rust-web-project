@@ -9,10 +9,12 @@ use sqlx::postgres::PgPoolOptions;
 use tokio::signal;
 use tower_http::{
     classify::ServerErrorsFailureClass,
-    trace::TraceLayer
+    trace::TraceLayer,
 };
-use tracing::{info_span, Span};
-
+use tracing::{
+    // Level,
+    Span
+};
 use std::net::SocketAddr;
 use std::time::Duration;
 
@@ -23,7 +25,7 @@ mod main_route;
 use crate::main_route::add_static_routes;
 
 // mod tracing;
-// use crate::tracing::add_tracing;
+// use crate::tracing::add_tracing_layer;
 
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
@@ -35,6 +37,7 @@ async fn main() -> Result<(), sqlx::Error> {
 
     // Initialise subscriber that listens and prints logs
     tracing_subscriber::fmt()
+        // .with_max_level(Level::DEBUG)
         .init();
 
     // Set up postgresql connection pool
@@ -46,27 +49,26 @@ async fn main() -> Result<(), sqlx::Error> {
         .expect("can't connect to database");
 
     // Create an Axum application
-    let mut app = Router::new()
-        .nest_service("/", add_static_routes())
+    let app = Router::new()
         .route("/api/pokemon/:id", get(add_sql_route))
-        .with_state(pool);
+        .with_state(pool)
+        .merge(add_static_routes())
+        .layer(TraceLayer::new_for_http());
+        // .merge(add_tracing_layer());
 
-    app = add_tracing(app);
+    // let app = add_tracing_layer(app);
 
     // Start the Axum server
-    match axum::Server::bind(&addr)
+    axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .with_graceful_shutdown(shutdown_signal())
         .await
-        {
-            Ok(_) => println!("Server started up successfully"),
-            Err(err) => println!("Server failed to start: {}", err),
-        };
+        .expect("Server failed to start");
 
     return Ok(())
 }
 
-fn add_tracing(router: Router) -> Router {
+fn add_tracing_layer(router: Router) -> Router {
     return router
         .layer(
             TraceLayer::new_for_http()
@@ -77,7 +79,7 @@ fn add_tracing(router: Router) -> Router {
                 //     .get::<MatchedPath>()
                 //     .map(MatchedPath::as_str);
 
-                info_span!(
+                tracing::info_span!(
                     "http_request ",
                     // method = ?request.method(),
                     uri = ?request.uri().path(),
@@ -102,7 +104,7 @@ fn add_tracing(router: Router) -> Router {
             .on_failure(|error: ServerErrorsFailureClass, _latency: Duration, _span: &Span| {
                 tracing::error!("error: {}", error)
             })
-        )
+        );
 }
 
 async fn shutdown_signal() {
