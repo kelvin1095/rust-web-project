@@ -9,7 +9,6 @@ use sqlx::postgres::PgPoolOptions;
 use tokio::signal;
 use tower_http::{
     classify::ServerErrorsFailureClass,
-    services::{ServeDir, ServeFile}, 
     trace::TraceLayer
 };
 use tracing::{info_span, Span};
@@ -17,21 +16,28 @@ use tracing::{info_span, Span};
 use std::net::SocketAddr;
 use std::time::Duration;
 
-mod route;
-use crate::route::add_sql_route;
+mod database_route;
+use crate::database_route::add_sql_route;
+
+mod main_route;
+use crate::main_route::add_static_routes;
+
+// mod tracing;
+// use crate::tracing::add_tracing;
 
 #[tokio::main]
 async fn main() -> Result<(), sqlx::Error> {
+    // Specify the IP address and port to listen on
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+
+    // Specify db url for postgresql
+    let database_url = "postgresql://postgres:password@localhost/postgres";
+
     // Initialise subscriber that listens and prints logs
     tracing_subscriber::fmt()
         .init();
 
-    // Specify the IP address and port to listen on
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-
-    let database_url = "postgresql://postgres:password@localhost/postgres";
-
-    // set up connection pool
+    // Set up postgresql connection pool
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .acquire_timeout(Duration::from_secs(3))
@@ -41,28 +47,23 @@ async fn main() -> Result<(), sqlx::Error> {
 
     // Create an Axum application
     let mut app = Router::new()
+        .nest_service("/", add_static_routes())
         .route("/api/pokemon/:id", get(add_sql_route))
         .with_state(pool);
 
-    app = add_static_routes(app);
     app = add_tracing(app);
 
     // Start the Axum server
-    axum::Server::bind(&addr)
+    match axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .with_graceful_shutdown(shutdown_signal())
         .await
-        .expect("Server failed to start");
+        {
+            Ok(_) => println!("Server started up successfully"),
+            Err(err) => println!("Server failed to start: {}", err),
+        };
 
     return Ok(())
-}
-
-fn add_static_routes(router: Router) -> Router {
-    let serve_dir = ServeDir::new("build")
-        .not_found_service(ServeFile::new("build/app.html"));
-
-    return router
-        .nest_service("/", serve_dir);
 }
 
 fn add_tracing(router: Router) -> Router {

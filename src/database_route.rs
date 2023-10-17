@@ -1,8 +1,8 @@
 use axum::{
   extract::{State, Path},
+  http::StatusCode,
   response::IntoResponse,
 };
-use axum::http::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgPool;
 
@@ -22,16 +22,17 @@ struct Pokemon {
     spa: Option<i32>,
     spd: Option<i32>,
     spe: Option<i32>,
-    height: Option<String>,
-    weight: Option<String>,
+    height: Option<f32>,
+    weight: Option<f32>,
+    pokemonimagefilename: Option<String>,
 }
 
 pub async fn add_sql_route(Path(id): Path<i32>, State(pool): State<PgPool>) -> impl IntoResponse {
   let query_result = sqlx::query_as::<_, Pokemon>("SELECT * FROM pokemon WHERE PokedexNumber = $1")
-      .bind(id)
-      .fetch_all(&pool)
-      .await
-      .expect("Failed to fetch data from the database");
+    .bind(id)
+    .fetch_all(&pool)
+    .await
+    .expect("Failed to fetch data from the database");
 
   println!("sql fetched: {:?}", query_result);
 
