@@ -1,25 +1,14 @@
-use axum::{
-    body::Bytes,
-    http::{HeaderMap, Request},
-    response::Response,
-    routing::get,
-    Router,
-};
+use axum::{routing::get, Router};
 use sqlx::postgres::PgPoolOptions;
-use tokio::signal;
-use tower_http::{
-    classify::ServerErrorsFailureClass,
-    trace::TraceLayer,
-};
-use tracing::{
-    // Level,
-    Span
-};
 use std::net::SocketAddr;
 use std::time::Duration;
+use tokio::signal;
+use tower_http::trace::TraceLayer;
+use tracing::Level;
 
 mod database_route;
-use crate::database_route::add_sql_route;
+// use crate::database_route::add_sql_route;
+use crate::database_route::get_pokemon_data;
 
 mod main_route;
 use crate::main_route::add_static_routes;
@@ -32,13 +21,13 @@ async fn main() -> Result<(), sqlx::Error> {
     // Specify the IP address and port to listen on
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
-    // Specify db url for postgresql
-    let database_url = "postgresql://postgres:password@localhost/postgres";
-
     // Initialise subscriber that listens and prints logs
     tracing_subscriber::fmt()
-        // .with_max_level(Level::DEBUG)
+        .with_max_level(Level::TRACE)
         .init();
+
+    // Specify db url for postgresql
+    let database_url = "postgresql://postgres:password@localhost/postgres";
 
     // Set up postgresql connection pool
     let pool = PgPoolOptions::new()
@@ -50,11 +39,12 @@ async fn main() -> Result<(), sqlx::Error> {
 
     // Create an Axum application
     let app = Router::new()
-        .route("/api/pokemon/:id", get(add_sql_route))
+        .route("/api/pokemon/:id", get(get_pokemon_data))
         .with_state(pool)
+        // .merge(add_sql_route_2())
         .merge(add_static_routes())
         .layer(TraceLayer::new_for_http());
-        // .merge(add_tracing_layer());
+    // .merge(add_tracing_layer());
 
     // let app = add_tracing_layer(app);
 
@@ -65,46 +55,7 @@ async fn main() -> Result<(), sqlx::Error> {
         .await
         .expect("Server failed to start");
 
-    return Ok(())
-}
-
-fn add_tracing_layer(router: Router) -> Router {
-    return router
-        .layer(
-            TraceLayer::new_for_http()
-            .make_span_with(|request: &Request<_>| {
-
-                // let matched_path = request
-                //     .extensions()
-                //     .get::<MatchedPath>()
-                //     .map(MatchedPath::as_str);
-
-                tracing::info_span!(
-                    "http_request ",
-                    // method = ?request.method(),
-                    uri = ?request.uri().path(),
-                    // user_agent = ?request.headers().get("User-Agent"),
-                    // matched_path,
-                    // some_other_field = tracing::field::Empty,
-                )
-
-            })
-            .on_request(|request: &Request<_>, _span: &Span| {
-                tracing::info!("request: {} {}", request.method(), request.uri().path())
-            })
-            .on_response(|response: &Response, latency: Duration, _span: &Span| {
-                tracing::info!("response: {} in {:?}", response.status(), latency)
-            })
-            .on_body_chunk(|chunk: &Bytes, latency: Duration, _span: &Span| {
-                tracing::info!("sending {} bytes in {:?}", chunk.len(), latency)
-            })
-            .on_eos(|_trailers: Option<&HeaderMap>, stream_duration: Duration, _span: &Span| {
-                tracing::info!("stream closed after {:?}", stream_duration)
-            })
-            .on_failure(|error: ServerErrorsFailureClass, _latency: Duration, _span: &Span| {
-                tracing::error!("error: {}", error)
-            })
-        );
+    return Ok(());
 }
 
 async fn shutdown_signal() {
@@ -113,7 +64,7 @@ async fn shutdown_signal() {
             .await
             .expect("failed to install Ctrl+C handler");
     };
-    
+
     let terminate = async {
         signal::unix::signal(signal::unix::SignalKind::terminate())
             .expect("failed to install signal handler")

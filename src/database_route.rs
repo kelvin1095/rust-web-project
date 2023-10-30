@@ -1,15 +1,19 @@
 use axum::{
-  extract::{State, Path},
-  http::StatusCode,
-  response::IntoResponse,
+    extract::{Path, State},
+    http::StatusCode,
+    //   routing::get,
+    //   Router
 };
 use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgPool;
 
+// use std::time::Duration;
+// use sqlx::postgres::PgPoolOptions;
+
 #[derive(Serialize, Deserialize, Debug, sqlx::FromRow)]
 struct Pokemon {
     pokedexnumber: i32,
-    name: String, 
+    name: String,
     form: Option<String>,
     type1: Option<String>,
     type2: Option<String>,
@@ -27,15 +31,40 @@ struct Pokemon {
     pokemonimagefilename: Option<String>,
 }
 
-pub async fn add_sql_route(Path(id): Path<i32>, State(pool): State<PgPool>) -> impl IntoResponse {
-    let query_result = sqlx::query_as::<_, Pokemon>("SELECT * FROM pokemon WHERE PokedexNumber = $1")
-        .bind(id)
-        .fetch_all(&pool)
-        .await
-        .expect("Failed to fetch data from the database");
+// pub async fn add_sql_route() -> Router {
+//     // Specify db url for postgresql
+//     let database_url = "postgresql://postgres:password@localhost/postgres";
 
-    let json_result = serde_json::to_string_pretty(&query_result).unwrap();
+//     // Set up postgresql connection pool
+//     let pool = PgPoolOptions::new()
+//         .max_connections(5)
+//         .acquire_timeout(Duration::from_secs(3))
+//         .connect(&database_url)
+//         .await
+//         .expect("can't connect to database");
 
-    return (StatusCode::OK, json_result);
+//     return Router::new()
+//         .route("/api/pokemon/:id", get(get_pokemon_data))
+//         .with_state(pool);
+// }
+
+pub async fn get_pokemon_data(
+    Path(id): Path<i32>,
+    State(pool): State<PgPool>,
+) -> Result<String, (StatusCode, String)> {
+    let query_result =
+        sqlx::query_as::<_, Pokemon>("SELECT * FROM pokemon WHERE PokedexNumber = $1")
+            .bind(id)
+            .fetch_all(&pool)
+            .await;
+
+    let json_result = match query_result {
+        Ok(result) => serde_json::to_string_pretty(&result),
+        Err(err) => return Err((StatusCode::INTERNAL_SERVER_ERROR, err.to_string())),
+    };
+
+    return match json_result {
+        Ok(result) => Ok(result),
+        Err(err) => Err((StatusCode::INTERNAL_SERVER_ERROR, err.to_string())),
+    };
 }
-
