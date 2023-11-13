@@ -1,2 +1,13 @@
+# Omit 
+svelte-front/node_modules
+svelte-front/.svelte-kit
+svelte-front/package
+
+# Omit static files
+svelte-front/static/
+
+# Omit Sveltekit build folder
+build/
+
+# Omit Rust build folder
 /target
-/build/PokemonHome

@@ -24,6 +24,11 @@ https://docs.rs/axum/latest/axum/extract/index.html
 
 I think what would be very fun is to create a web app that helps learn language. Some kind of mix and match: One word in one language matches to the same word in another language.
 
+# Important commands
+
+npm --prefix svelte-front run build
+cargo run --manifest-path rust-back/Cargo.toml
+
 <!--
 DROP TABLE pokemon;
 
