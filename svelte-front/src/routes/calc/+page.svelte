@@ -4,7 +4,7 @@
   let num1 = "";
   let num2 = "";
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: Event) => {
     event.preventDefault();
     const formData = {
       num1: num1,

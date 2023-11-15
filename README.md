@@ -54,3 +54,15 @@ CREATE TABLE pokemon (
 
 \COPY pokemon FROM 'PokemonStats.csv' WITH (FORMAT csv, HEADER true);
 -->
+
+Accessing postgres from the terminal:
+
+sudo su postgres
+psql
+psql -f pokemon.sql
+
+psql -f pokemon.sql -v pokemonIndex=5
+psql -f pokemonByType.sql -v attack=100 -v spattack=100
+psql -f pokemonByType.sql -v type1=Fire -v type2=Flying
+
+note: for string type columns, surround the variable name in ''
