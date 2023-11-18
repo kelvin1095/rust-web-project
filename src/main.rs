@@ -50,6 +50,7 @@ async fn main() -> Result<(), String> {
 
     // Set up postgresql connection pool
     let pool = PgPoolOptions::new()
+        .min_connections(2)
         .max_connections(5)
         .acquire_timeout(Duration::from_secs(3))
         .connect(&database_url)

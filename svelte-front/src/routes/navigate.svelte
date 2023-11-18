@@ -27,6 +27,11 @@
     },
     {
       id: 6,
+      name: "Learn a Language",
+      link: "/language",
+    },
+    {
+      id: 7,
       name: "About",
       link: "/about",
     },

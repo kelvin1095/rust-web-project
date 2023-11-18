@@ -1,15 +1,14 @@
 <script lang="ts">
+  import { fade } from "svelte/transition";
+
   import Header from "./header.svelte";
   import Footer from "./footer.svelte";
   import Navigate from "./navigate.svelte";
-
-  import { fade } from "svelte/transition";
 
   // export const prerender = true;
   // export const ssr = false;
 
   export let data;
-  //   console.log(data);
 </script>
 
 <div id="root">
@@ -67,6 +66,13 @@
   }
 
   :global(h1) {
+    font-family: "Cormorant";
+    font-weight: normal;
+    padding: 0;
+    margin: 0;
+  }
+
+  :global(h2) {
     font-family: "Cormorant";
     font-weight: normal;
     padding: 0;

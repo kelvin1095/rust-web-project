@@ -42,27 +42,23 @@
 
 <h2>GET Requests</h2>
 <form method="GET" action="/api/sum">
-  <label>
-    First Number
-    <input name="num1" type="input" />
-  </label>
-  <label>
-    Second Number
-    <input name="num2" type="input" />
-  </label>
+  <label for="num1">First Number</label>
+  <input id="num1" name="num1" bind:value={num1} type="input" />
+
+  <label for="num2">Second Number</label>
+  <input id="num2" name="num2" bind:value={num2} type="input" />
+
   <button>Submit!</button>
 </form>
 
 <h2>POST Requests</h2>
 <form on:submit={handleSubmit}>
-  <label>
-    First Number
-    <input name="num1" bind:value={num1} type="input" />
-  </label>
-  <label>
-    Second Number
-    <input name="num2" bind:value={num2} type="input" />
-  </label>
+  <label for="num1">First Number</label>
+  <input id="num1" name="num1" bind:value={num1} type="input" />
+
+  <label for="num2">Second Number</label>
+  <input id="num2" name="num2" bind:value={num2} type="input" />
+
   <button>Submit!</button>
 </form>
 

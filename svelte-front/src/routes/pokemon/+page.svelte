@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { type1_store, type2_store, search_result_store } from "../store";
+  import { onMount } from "svelte";
+
   type Pokemon = {
     pokedexnumber: number;
     name: string;
@@ -34,13 +37,25 @@
 
   let result: Pokemon[] = [];
 
-  const handleSubmit = async (event: Event) => {
-    event.preventDefault();
+  onMount(() => {
+    type1_store.subscribe((value) => {
+      type1 = value;
+    });
+
+    type2_store.subscribe((value) => {
+      type2 = value;
+    });
+
+    search_result_store.subscribe((value) => {
+      result = value;
+    });
+  });
+
+  const fetchData = async () => {
     const formData = {
       type1: type1,
       type2: type2,
     };
-
     console.log(JSON.stringify(formData));
 
     try {
@@ -61,6 +76,15 @@
       result = [];
     }
   };
+
+  const handleSubmit = async (event: Event) => {
+    event.preventDefault();
+    await fetchData();
+
+    type1_store.set(type1);
+    type2_store.set(type2);
+    search_result_store.set(result);
+  };
 </script>
 
 <svelte:head>
@@ -72,14 +96,14 @@
 
 <form on:submit={handleSubmit}>
   <label for="type1">Primary Type:</label>
-  <select name="type1" bind:value={type1}>
+  <select name="type1" id="type1" bind:value={type1}>
     {#each pokemonTypes as type, i}
       <option value={type}>{type}</option>
     {/each}
   </select>
 
   <label for="type2">Secondary Type:</label>
-  <select name="type2" bind:value={type2}>
+  <select name="type2" id="type2" bind:value={type2}>
     {#each pokemonTypes as type, i}
       <option value={type}>{type}</option>
     {/each}
