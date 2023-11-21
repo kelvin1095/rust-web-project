@@ -4,6 +4,14 @@
   let num1 = "";
   let num2 = "";
 
+  function getJwtFromCookie() {
+    const cookieValue = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("jwt="))
+      ?.split("=")[1];
+    return cookieValue || null;
+  }
+
   const handleSubmit = async (event: Event) => {
     event.preventDefault();
     const formData = {
@@ -11,6 +19,10 @@
       num2: num2,
     };
 
+    let jwt = getJwtFromCookie();
+    console.log(jwt);
+
+    console.log(JSON.stringify(formData));
     console.log(JSON.stringify(formData));
 
     try {
@@ -18,6 +30,7 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${jwt}`,
         },
         body: JSON.stringify(formData),
       });
@@ -40,7 +53,7 @@
 <h1>Welcome to my Calculator Page!</h1>
 <p>This page is to test out get/post requests in forms</p>
 
-<h2>GET Requests</h2>
+<!-- <h2>GET Requests</h2>
 <form method="GET" action="/api/sum">
   <label for="num1">First Number</label>
   <input id="num1" name="num1" bind:value={num1} type="input" />
@@ -49,7 +62,7 @@
   <input id="num2" name="num2" bind:value={num2} type="input" />
 
   <button>Submit!</button>
-</form>
+</form> -->
 
 <h2>POST Requests</h2>
 <form on:submit={handleSubmit}>

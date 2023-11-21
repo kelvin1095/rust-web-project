@@ -1,15 +1,18 @@
-#[derive(Deserialize, Serialize)]
-struct JWT {
-    sub: String,
-    name: String,
-    exp: usize,
-}
+use axum::{
+    headers::authorization::{Authorization, Bearer},
+    http::StatusCode,
+    TypedHeader,
+};
 
-fn validation_test() {
-    let key = "secret";
-    let test_jwt = JWT {
-        sub: "123456789".to_string,
-        name: "test_user".to_string,
-        exp: 1000000000,
-    }
+pub fn validation_test(authorisation_header: TypedHeader<Authorization<Bearer>>) {
+    let token = authorisation_header.token();
+
+    let token_message = decode::<Claims>(&token, &SECRET_KEY.decoding, &Validation::default());
+
+    let _token_claim = match token_message {
+        Ok(result) => result,
+        Err(err) => return Err((StatusCode::UNAUTHORIZED, err.to_string())),
+    };
+
+    return Ok(());
 }
