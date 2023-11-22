@@ -1,6 +1,10 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { userInfo_store } from "../store";
+
   let id = "";
   let password = "";
+  let error_message = "";
 
   const handleSubmit = async (event: Event) => {
     event.preventDefault();
@@ -20,12 +24,19 @@
         body: JSON.stringify(formData),
       });
 
-      // Handle the response as needed
-      const data = await response.json();
-      console.log("API Response:", data);
-      document.cookie = `jwt=${data.access_token}; path=/; secure; samesite=strict`;
+      if (!response.ok) {
+        throw new Error(
+          `HTTP ${response.status} error! Status: ${await response.text()}`
+        );
+      }
+
+      console.log("API Response:", response.status);
+      userInfo_store.set(id);
+      console.log("hello from login: ", id);
+      goto("/");
     } catch (error) {
       console.error("Error:", error);
+      error_message = (error as Error).message;
     }
   };
 </script>
@@ -35,7 +46,7 @@
 </svelte:head>
 
 <form on:submit={handleSubmit}>
-  <label for="id">ID:</label>
+  <label for="id">Username:</label>
   <input id="id" name="id" bind:value={id} />
   <br />
 
@@ -46,8 +57,10 @@
   <button>Login</button>
 </form>
 
-<a href="/signup">Create Account</a>
+<a href="/register">Create Account</a>
 <a href="/passwordreset">Forgot Password?</a>
+
+{error_message}
 
 <style>
   form {

@@ -2,14 +2,9 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     Json,
-    //   routing::get,
-    //   Router
 };
 use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgPool;
-
-// use std::time::Duration;
-// use sqlx::postgres::PgPoolOptions;
 
 #[derive(Serialize)]
 struct Pokemon {

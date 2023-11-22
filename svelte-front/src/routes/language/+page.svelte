@@ -1,4 +1,5 @@
 <script lang="ts">
+  //   let languageList = ["Mandarin", "Japanese", "Korean"];
 </script>
 
 <svelte:head>

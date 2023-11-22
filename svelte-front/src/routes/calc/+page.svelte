@@ -7,7 +7,7 @@
   function getJwtFromCookie() {
     const cookieValue = document.cookie
       .split("; ")
-      .find((row) => row.startsWith("jwt="))
+      .find((row) => row.startsWith("auth-token"))
       ?.split("=")[1];
     return cookieValue || null;
   }
@@ -21,8 +21,6 @@
 
     let jwt = getJwtFromCookie();
     console.log(jwt);
-
-    console.log(JSON.stringify(formData));
     console.log(JSON.stringify(formData));
 
     try {

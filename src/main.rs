@@ -12,18 +12,18 @@ use std::env;
 use std::net::SocketAddr;
 use std::time::Duration;
 
-mod database_route;
-use crate::database_route::get_pokemon_data;
-use crate::database_route::get_pokemon_data_by_type;
+mod api;
+use crate::api::{
+    authorise::authorize,
+    pokemon_route::{get_pokemon_data, get_pokemon_data_by_type},
+    register_user::new_user,
+};
 
-mod main_route;
-use crate::main_route::add_static_routes;
+mod static_files;
+use crate::static_files::serve_static_files;
 
 mod test_route;
 use crate::test_route::list_things;
-
-mod authorise;
-use crate::authorise::authorize;
 
 // mod tracing;
 // use crate::tracing::add_tracing_layer;
@@ -32,19 +32,14 @@ use crate::authorise::authorize;
 async fn main() {
     dotenv().expect("Missing dotenv file");
 
-    // Specify the IP address and port to listen on
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
-    // Initialise subscriber that listens and prints logs
     tracing_subscriber::fmt()
         .with_max_level(Level::TRACE)
         .init();
 
-    // Specify db url for postgresql
     let database_url: String = env::var("DATABASE_URL").expect("missing database url");
-    // let database_url = "postgresql://postgres:password@localhost/postgres";
 
-    // Set up postgresql connection pool
     let pool = PgPoolOptions::new()
         .min_connections(2)
         .max_connections(5)
@@ -53,19 +48,18 @@ async fn main() {
         .await
         .expect("Unable to connect to the database");
 
-    // Create an Axum application
     let app = Router::new()
-        .route("/api/pokemon/:id", get(get_pokemon_data))
         .route("/api/auth", post(authorize))
+        .route("/api/register", post(new_user))
         .route("/api/pokemon/type", post(get_pokemon_data_by_type))
+        .route("/api/pokemon/:id", get(get_pokemon_data))
         .route("/api/sum", post(list_things))
         .with_state(pool)
-        .merge(add_static_routes())
+        .merge(serve_static_files())
         .layer(TraceLayer::new_for_http());
 
     // let app = add_tracing_layer(app);
 
-    // Start the Axum server
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .with_graceful_shutdown(shutdown_signal())

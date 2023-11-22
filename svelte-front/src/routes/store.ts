@@ -8,6 +8,8 @@ type Pokemon = {
   type2?: string;
 };
 
+export const userInfo_store = writable("");
+
 export const type1_store = writable("");
 export const type2_store = writable("");
 export const search_result_store = writable<Pokemon[]>([]);

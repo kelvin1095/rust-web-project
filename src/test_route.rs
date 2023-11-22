@@ -29,7 +29,6 @@ struct Total {
 fn is_authorised(
     authorisation_header: TypedHeader<Authorization<Bearer>>,
 ) -> Result<(), (StatusCode, String)> {
-    println!("{:?}", authorisation_header);
     let token = authorisation_header.token();
 
     let token_message = decode::<Claims>(
