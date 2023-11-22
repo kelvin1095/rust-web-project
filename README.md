@@ -1,22 +1,23 @@
-# Rust Web Server
+# Learning project
 
-This project is to build a web server wtih rust.
+This project is to build a webapp using svelte as the frontend and rust as the backend.
 
-The files in the public folder form a basic website built with sveltekit.
+## To Do (backend):
 
-To Do:
-
-- Refactor code nicely (Never ending).
-- Proper Error handling.
+- Split code (Never ending).
+- Proper Error handling (Never ending).
 - User Authentication.
+  - Need to modify what happens after user has logged in.
+  - Need to do the secret key for JWT better
 
-Done:
+## To Do (frontend):
 
-- Serve static files in the public directory. These files are generated from SvelteKit.
-  - SvelteKit also does routing and error pages so thats less I need to worry about in Rust.
-- Graceful shutdown.
-- Log requests, reponse, bytes etc.
-- Make requests to a postgres database.
+- Create webpage for learning language, current aim is to make something for Japanese, Korean and Mandarin.
+- Design stuff (Never ending).
+  - Mobile layout
+  - Dark Mode
+
+## Potentially useful links
 
 https://docs.rs/tower-http/latest/tower_http/trace/
 https://docs.rs/axum/latest/axum/extract/struct.OriginalUri.html#
@@ -55,7 +56,9 @@ CREATE TABLE pokemon (
 \COPY pokemon FROM 'PokemonStats.csv' WITH (FORMAT csv, HEADER true);
 -->
 
-<!-- CREATE TABLE users (
+### Creating tables for user log in information
+
+`CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -63,45 +66,39 @@ CREATE TABLE pokemon (
     date_registered TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     account_status VARCHAR(20) DEFAULT 'active',
     preferred_name VARCHAR(50)
-); -->
+);`
 
-<!-- CREATE TABLE user_salts (
+`CREATE TABLE user_salts (
     user_id SERIAL PRIMARY KEY,
     salt_value VARCHAR(255) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
-); -->
+);`
 
-<!-- CREATE TABLE user_peppers (
+`CREATE TABLE user_peppers (
     user_id SERIAL PRIMARY KEY,
     pepper_value VARCHAR(255) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
-); -->
+);`
 
--- Inserting a new user
-INSERT INTO users (username, email, hashed_password, hashing_algorithm, preferred_name)
-VALUES ('example_user', 'user@example.com', 'hashed_password_value', 'bcrypt', 'John');
+Resetting table:
 
--- Retrieving the user_id for the newly inserted user
-SELECT user_id, hashed_password FROM users WHERE username = 'example_user';
+`DROP TABLE users;
+DROP TABLE user_peppers;`
 
--- Inserting the user's salt into the user_salts table
-INSERT INTO user_salts (user_id, salt_value) VALUES (1, 'unique_salt_value');
+### Accessing postgres from the terminal:
 
-curl -X POST -i localhost:3000/api/register -H 'Content-Type: application/json' -d '{"username": "admin", "name": "admin", "email": "example@email.com", "password":"password"}'
-
-Accessing postgres from the terminal:
-
-sudo su postgres
+`sudo su postgres
 psql
-psql -f pokemon.sql
 
-psql -f pokemon.sql -v pokemonIndex=5
-psql -f pokemonByType.sql -v attack=100 -v spattack=100
-psql -f pokemonByType.sql -v type1=Fire -v type2=Flying
+psql -f pokemon.sql
+psql -f pokemon.sql -v pokemonIndex=5`
 
 note: for string type columns, surround the variable name in ''
 
-curl -X POST -i \
+Test logging in:
+
+`curl -X POST -i \
  localhost:3000/api/register \
  -H 'Content-Type: application/json' \
  -d '{"username": "admin", "name": "admin", "email": "example@email.com", "password":"password"}'
+`
