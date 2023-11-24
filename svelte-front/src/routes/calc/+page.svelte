@@ -49,20 +49,12 @@
 </svelte:head>
 
 <h1>Welcome to my Calculator Page!</h1>
-<p>This page is to test out get/post requests in forms</p>
+<p>
+  This page is to test out post requests with authorization headers. A number
+  will not be returned if you are not logged in.
+</p>
 
-<!-- <h2>GET Requests</h2>
-<form method="GET" action="/api/sum">
-  <label for="num1">First Number</label>
-  <input id="num1" name="num1" bind:value={num1} type="input" />
-
-  <label for="num2">Second Number</label>
-  <input id="num2" name="num2" bind:value={num2} type="input" />
-
-  <button>Submit!</button>
-</form> -->
-
-<h2>POST Requests</h2>
+<h2>Adding two numbers with post requests</h2>
 <form on:submit={handleSubmit}>
   <label for="num1">First Number</label>
   <input id="num1" name="num1" bind:value={num1} type="input" />

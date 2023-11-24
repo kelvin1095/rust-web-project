@@ -1,6 +1,5 @@
 SELECT
     users.user_id,
-    users.preferred_name,
     user_peppers.pepper_value,
     users.hashed_password
 FROM

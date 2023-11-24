@@ -11,7 +11,6 @@ use sqlx::PgPool;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct NewUser {
     username: String,
-    name: String,
     email: String,
     password: String,
 }
@@ -43,7 +42,6 @@ pub async fn new_user(
         payload.username,
         payload.email,
         phc,
-        payload.name,
         pepper_string
     )
     .execute(&pool)

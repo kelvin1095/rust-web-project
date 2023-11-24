@@ -25,7 +25,6 @@ pub struct User {
 #[derive(Deserialize)]
 pub struct UserDetails {
     user_id: i32,
-    preferred_name: Option<String>,
     pepper_value: String,
     hashed_password: String,
 }

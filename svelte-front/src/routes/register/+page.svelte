@@ -1,7 +1,6 @@
 <script lang="ts">
   type NewUser = {
     username: string;
-    name: string;
     email: string;
     password: string;
   };
@@ -10,16 +9,50 @@
   let password = "";
   let passwordRepeat = "";
   let email = "";
-  let preferName = "";
 
   const handleSubmit = async () => {
+    const minLength = 8;
+    const uppercaseRegex = /[A-Z]/;
+    const lowercaseRegex = /[a-z]/;
+    const digitRegex = /\d/;
+
     if (password !== passwordRepeat) {
       alert("mismatch password");
+      return;
+    }
+
+    if (password.length < minLength) {
+      alert("password must be greater than 8 characters long");
+      return;
+    }
+
+    if (!uppercaseRegex.test(password)) {
+      alert("password must contain an uppercase character");
+      return;
+    }
+
+    if (!lowercaseRegex.test(password)) {
+      alert("password must contain a lowercase character");
+      return;
+    }
+
+    if (!digitRegex.test(password)) {
+      alert("password must contain a numeric character");
+      return;
+    }
+
+    if (!id.length) {
+      alert("please enter a username");
+      return;
+    }
+
+    if (!email.length) {
+      alert("please enter a email");
+      return;
     }
 
     let newUser: NewUser = {
       username: id,
-      name: preferName,
       email: email,
       password: password,
     };
@@ -55,10 +88,6 @@
 
   <label for="email">Email:</label>
   <input id="email" name="email" type="email" bind:value={email} />
-  <br />
-
-  <label for="preferName">Preferred Name:</label>
-  <input id="preferName" name="preferName" bind:value={preferName} />
   <br />
 
   <label for="psd">Password:</label>

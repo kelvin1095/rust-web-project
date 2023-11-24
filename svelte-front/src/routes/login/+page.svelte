@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { userInfo_store } from "../store";
+  import { login_status_store } from "../store";
 
   let id = "";
   let password = "";
@@ -31,7 +31,9 @@
       }
 
       console.log("API Response:", response.status);
-      userInfo_store.set(id);
+      login_status_store.set(true);
+      localStorage.setItem("username", id);
+
       console.log("hello from login: ", id);
       goto("/");
     } catch (error) {

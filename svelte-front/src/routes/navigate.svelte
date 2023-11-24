@@ -1,37 +1,26 @@
 <script lang="ts">
   const linkList = [
     {
-      id: 1,
-      name: "Home",
-      link: "/",
-    },
-    {
-      id: 2,
       name: "Pokemon",
       link: "/pokemon",
     },
     {
-      id: 3,
       name: "Koi Fish",
       link: "/koi",
     },
     {
-      id: 4,
       name: "Set Game",
       link: "/set",
     },
     {
-      id: 5,
-      name: "Calculator",
+      name: "Login Test Calc",
       link: "/calc",
     },
     {
-      id: 6,
       name: "Learn a Language",
       link: "/language",
     },
     {
-      id: 7,
       name: "About",
       link: "/about",
     },

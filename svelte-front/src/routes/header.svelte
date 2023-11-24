@@ -1,12 +1,19 @@
 <script lang="ts">
-  import { userInfo_store } from "./store";
+  import { onMount } from "svelte";
+  import { login_status_store } from "./store";
 
-  let userInfo: string;
-  userInfo_store.subscribe((value) => {
-    userInfo = value;
+  let user_id: string | null = localStorage.getItem("username");
+  let userInfo: boolean;
+
+  onMount(() => {
+    login_status_store.subscribe((value) => {
+      userInfo = value;
+    });
   });
 
-  $: console.log("hello from header: ", userInfo);
+  $: if (userInfo) {
+    user_id = localStorage.getItem("username");
+  }
 </script>
 
 <header>
@@ -14,7 +21,7 @@
   <h1>Hello! Welcome to my Svelte project!</h1>
   <div class="headerButton">
     {#if userInfo}
-      <a href="/{userInfo}">{userInfo}</a>
+      <a href="/profile/{user_id}">{user_id}</a>
     {:else}
       <a href="/login">Login</a>
     {/if}

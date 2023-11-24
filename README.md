@@ -64,8 +64,8 @@ CREATE TABLE pokemon (
     email VARCHAR(100) UNIQUE NOT NULL,
     hashed_password VARCHAR(255) NOT NULL,
     date_registered TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_changed_password TIMESTAMP,
     account_status VARCHAR(20) DEFAULT 'active',
-    preferred_name VARCHAR(50)
 );`
 
 `CREATE TABLE user_salts (
@@ -93,7 +93,7 @@ psql
 psql -f pokemon.sql
 psql -f pokemon.sql -v pokemonIndex=5`
 
-note: for string type columns, surround the variable name in ''
+note: for string type columns, surround the variable name in
 
 Test logging in:
 
