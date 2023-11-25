@@ -3,7 +3,9 @@ use axum::{
     http::StatusCode,
     Json, TypedHeader,
 };
+use dotenv::dotenv;
 use jsonwebtoken::{decode, DecodingKey, Validation};
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -26,6 +28,12 @@ struct Total {
     method: String,
 }
 
+static SECRET_KEY: Lazy<String> = Lazy::new(|| {
+    dotenv().ok();
+    let secret = std::env::var("JWT_SECRET_KEY").expect("missing secret key");
+    return secret;
+});
+
 fn is_authorised(
     authorisation_header: TypedHeader<Authorization<Bearer>>,
 ) -> Result<(), (StatusCode, String)> {
@@ -33,11 +41,11 @@ fn is_authorised(
 
     let token_message = decode::<Claims>(
         &token,
-        &DecodingKey::from_secret(b"secret"),
+        &DecodingKey::from_secret(SECRET_KEY.as_bytes()),
         &Validation::default(),
     );
 
-    let _token_claim = match token_message {
+    let _ = match token_message {
         Ok(result) => result,
         Err(err) => return Err((StatusCode::UNAUTHORIZED, err.to_string())),
     };
@@ -50,6 +58,7 @@ pub async fn list_things(
     Json(payload): Json<Summation>,
 ) -> Result<String, (StatusCode, String)> {
     let _ = is_authorised(authorisation_header)?;
+
     let num1_parsed = match payload.num1.parse::<f32>() {
         Ok(result) => result,
         Err(err) => return Err((StatusCode::BAD_REQUEST, err.to_string())),

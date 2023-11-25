@@ -1,6 +1,5 @@
 use argon2::{password_hash::Salt, Algorithm, Argon2, Params, PasswordHasher, Version};
 use axum::{
-    debug_handler,
     extract::{Json, State},
     http::StatusCode,
 };
@@ -15,7 +14,6 @@ pub struct NewUser {
     password: String,
 }
 
-#[debug_handler]
 pub async fn new_user(
     State(pool): State<PgPool>,
     Json(payload): Json<NewUser>,
@@ -37,7 +35,7 @@ pub async fn new_user(
         .unwrap()
         .to_string();
 
-    let _ = sqlx::query_file!(
+    let insert_new_user = sqlx::query_file!(
         "src/sql/createUser.sql",
         payload.username,
         payload.email,
@@ -46,6 +44,11 @@ pub async fn new_user(
     )
     .execute(&pool)
     .await;
+
+    let _ = match insert_new_user {
+        Ok(_) => (),
+        Err(err) => return Err((StatusCode::UNAUTHORIZED, err.to_string())),
+    };
 
     return Ok(());
 }

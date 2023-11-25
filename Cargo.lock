@@ -2270,6 +2270,7 @@ dependencies = [
  "chrono",
  "dotenv",
  "jsonwebtoken",
+ "once_cell",
  "rand",
  "serde",
  "serde_json",

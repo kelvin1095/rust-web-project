@@ -6,7 +6,9 @@ use axum::{
     Json,
 };
 use chrono::{Duration, Utc};
+use dotenv::dotenv;
 use jsonwebtoken::{encode, EncodingKey, Header};
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
@@ -37,6 +39,12 @@ struct Claims {
     exp: i64,
 }
 
+static SECRET_KEY: Lazy<String> = Lazy::new(|| {
+    dotenv().ok();
+    let secret = std::env::var("JWT_SECRET_KEY").expect("missing secret key");
+    return secret;
+});
+
 pub async fn authorize(
     State(pool): State<PgPool>,
     Json(payload): Json<User>,
@@ -47,7 +55,7 @@ pub async fn authorize(
 
     let result: UserDetails = match user_match {
         Ok(result) => result,
-        Err(_err) => return Err((StatusCode::UNAUTHORIZED, "User ID not found".to_string())),
+        Err(_) => return Err((StatusCode::UNAUTHORIZED, "User ID not found".to_string())),
     };
 
     let check_password = PasswordHash::new(&result.hashed_password).unwrap();
@@ -67,7 +75,6 @@ pub async fn authorize(
 
     let now = Utc::now();
     let iat = now.timestamp();
-
     let exp = (now + Duration::weeks(1)).timestamp();
 
     let test_user = Claims {
@@ -80,7 +87,7 @@ pub async fn authorize(
     let token = encode(
         &Header::default(),
         &test_user,
-        &EncodingKey::from_secret(b"secret"),
+        &EncodingKey::from_secret(SECRET_KEY.as_bytes()),
     )
     .unwrap();
 

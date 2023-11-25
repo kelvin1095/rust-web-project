@@ -11,8 +11,8 @@ For my backend, I'm using rust.
 - Proper Error handling (Never ending).
 - User Authentication.
   - Should change registration process from account_status active by default to unverified and send out email to change to active.
-  - The JWT secret key should be randomised as well and the random key should stored in a table in postgres.
-  - The table storing JWT secret key as well as the user peppers is likely better off in a key value table.
+  - The JWT secret key should be randomised.
+  - The table storing user peppers is likely better off in a key value database.
 - Need to figure out a way to deliver the actual language part to the user.
   - I want to be able to capture relationship between presented word and submitted choice too.
   - Also need to figure out how to track progress per user.
@@ -27,7 +27,7 @@ For my backend, I'm using rust.
 
 ## Potential future plans
 
-- Use openai in some capacity to be able to
+- Use openai in some capacity to be able to mark more open ended assignments (such as introduce yourself or what did you do on the weekend).
 - Unique avatars
 - Being able to comment on verified sentences/words (probably would need some moderating system)
 - Translating competitions
