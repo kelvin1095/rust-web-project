@@ -1,5 +1,5 @@
 <script lang="ts">
-  //   let languageList = ["Mandarin", "Japanese", "Korean"];
+  let languageList = ["Mandarin", "Japanese", "Korean"];
 </script>
 
 <svelte:head>
@@ -18,23 +18,31 @@
 </p>
 
 <ul>
-  <li>greetings/introduction</li>
+  <li>greetings/introduction/farewells</li>
   <li>numbers</li>
   <li>time and duration</li>
-  <li>places and positionals</li>
+  <li>adjectives</li>
   <ul><li>front, back, left, right</li></ul>
+  <ul><li>early, late, fast, slow</li></ul>
+  <ul><li>big, small, wide, narrow</li></ul>
+  <li>colours</li>
+  <li>places</li>
   <ul><li>restaurant, hotel, station</li></ul>
+  <ul><li>post office, police station, park</li></ul>
   <li>food</li>
 </ul>
 
-<ul>
-  <li><a href="/language/learn-japanese">Japanese</a></li>
-  <li><a href="/language/learn-korean">Korean</a></li>
-  <li><a href="/language/learn-mandarin">Mandarin</a></li>
-</ul>
+{#each languageList as language, i}
+  <a href="/language/learn-{language}">{language}</a>
+{/each}
 
 <style>
   h1 {
     text-align: center;
+  }
+
+  ul {
+    list-style-type: disc;
+    padding: 0 2rem;
   }
 </style>

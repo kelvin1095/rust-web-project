@@ -48,10 +48,12 @@
   <title>Calculator</title>
 </svelte:head>
 
-<h1>Welcome to my Calculator Page!</h1>
+<h1>Login Calculator Test Page</h1>
 <p>
-  This page is to test out post requests with authorization headers. A number
-  will not be returned if you are not logged in.
+  This page is to test out logging in with authorization headers and JWTs. If
+  you are not logged in, then you will see an error returned. If you are logged
+  in, the sum of the two numbers will be returned. Of course, if you enter
+  anything that isn't a number, you will see an error
 </p>
 
 <h2>Adding two numbers with post requests</h2>

@@ -106,8 +106,9 @@
   <button>Register</button>
 </form>
 
-<p>Already have an account?<a href="/login">Login</a></p>
-<a href="/passwordreset">Forgot Password?</a>
+<p id="register-options">
+  Already have an account? <a href="/login">Login Here</a>
+</p>
 
 <style>
   form {
@@ -123,5 +124,9 @@
 
   input {
     width: 100%;
+  }
+
+  #register-options {
+    text-align: center;
   }
 </style>

@@ -91,8 +91,23 @@
   <title>Pokemon</title>
 </svelte:head>
 
-<h1>Welcome to my new Pokemon Page!</h1>
-<p>This is where I will dump stuff on pokemon!</p>
+<h1>Pokemon Search Page!</h1>
+<p>
+  On this page, I learnt how to use svelte stores to store search parameters and
+  results (so that when you navigate away and back, you can continue like
+  before) as well as connecting to a postgres db where all the pokemon data is
+  stored.
+</p>
+
+<p>
+  When you seach and click on any pokemon returned, it will display name, form,
+  type, ability, weight, height and stats.
+</p>
+
+<p>
+  The only possible issue to do here is when you search and click on a specific
+  pokemon's form, it does not display automatically display that form.
+</p>
 
 <form on:submit={handleSubmit}>
   <label for="type1">Primary Type:</label>
@@ -128,6 +143,10 @@
 
 <style>
   h1 {
+    text-align: center;
+  }
+
+  form {
     text-align: center;
   }
 </style>

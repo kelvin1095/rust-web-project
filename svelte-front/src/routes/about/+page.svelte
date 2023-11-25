@@ -5,8 +5,11 @@
   <title>About Me</title>
 </svelte:head>
 
-<h1>Welcome to my new About Me Page!</h1>
-<p>I will put my resume here as well!</p>
+<h1>About Me!</h1>
+<p>
+  I'm not sure what to do with this page. I'm thinking about keeping this page
+  simple with work experience and other things enthusiastic about.
+</p>
 
 <style>
   h1 {

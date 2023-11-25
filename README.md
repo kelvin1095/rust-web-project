@@ -1,29 +1,36 @@
 # Learning project
 
-This project is to build a webapp using svelte as the frontend and rust as the backend.
+This project is to build a webapp using svelte as the frontend and rust as the backend. My goal is to build a basic language learning app.
+
+For my frontend, I'm using svelte with typescript.
+For my backend, I'm using rust.
 
 ## To Do (backend):
 
-- Split code (Never ending).
+- Refactor/organise code (Never ending).
 - Proper Error handling (Never ending).
 - User Authentication.
-  - Need to modify what happens after user has logged in.
-  - Need to do the secret key for JWT better
+  - Should change registration process from account_status active by default to unverified and send out email to change to active.
+  - The JWT secret key should be randomised as well and the random key should stored in a table in postgres.
+  - The table storing JWT secret key as well as the user peppers is likely better off in a key value table.
+- Need to figure out a way to deliver the actual language part to the user.
+  - I want to be able to capture relationship between presented word and submitted choice too.
+  - Also need to figure out how to track progress per user.
 
 ## To Do (frontend):
 
-- Create webpage for learning language, current aim is to make something for Japanese, Korean and Mandarin.
-- Design stuff (Never ending).
-  - Mobile layout
-  - Dark Mode
+- Better Design (Never ending).
+- Types of quizzes:
+  - A constant stream of mix and match.
+  - Typical quizz with 4 choices.
+  - A sentence building exercise.
 
-## Potentially useful links
+## Potential future plans
 
-https://docs.rs/tower-http/latest/tower_http/trace/
-https://docs.rs/axum/latest/axum/extract/struct.OriginalUri.html#
-https://docs.rs/axum/latest/axum/extract/index.html
-
-I think what would be very fun is to create a web app that helps learn language. Some kind of mix and match: One word in one language matches to the same word in another language.
+- Use openai in some capacity to be able to
+- Unique avatars
+- Being able to comment on verified sentences/words (probably would need some moderating system)
+- Translating competitions
 
 # Important commands
 
@@ -58,6 +65,12 @@ CREATE TABLE pokemon (
 
 ### Creating tables for user log in information
 
+I think there should be another table for things you can change frequently such as:
+
+- username
+- email
+- preferred name
+
 `CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -67,6 +80,8 @@ CREATE TABLE pokemon (
     last_changed_password TIMESTAMP,
     account_status VARCHAR(20) DEFAULT 'active',
 );`
+
+Since I'm storing the salt in the hashed_password column as phc format, the salts table is redundant.
 
 `CREATE TABLE user_salts (
     user_id SERIAL PRIMARY KEY,

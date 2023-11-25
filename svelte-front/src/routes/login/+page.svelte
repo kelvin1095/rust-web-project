@@ -47,36 +47,55 @@
   <title>Login</title>
 </svelte:head>
 
-<form on:submit={handleSubmit}>
-  <label for="id">Username:</label>
-  <input id="id" name="id" bind:value={id} />
-  <br />
+<p>Please note that the "Forget Password" route currently does not exist.</p>
 
-  <label for="password">Password:</label>
-  <input id="password" type="password" bind:value={password} />
-  <br />
+<form id="login-form" on:submit={handleSubmit}>
+  <div id="input-fields">
+    <label for="id">Username:</label>
+    <input id="id" name="id" bind:value={id} />
+    <br />
 
-  <button>Login</button>
+    <label for="password">Password:</label>
+    <input id="password" type="password" bind:value={password} />
+    <br />
+  </div>
+
+  <button id="input-submit">Login</button>
 </form>
 
-<a href="/register">Create Account</a>
-<a href="/passwordreset">Forgot Password?</a>
+<div id="login-options">
+  <a href="/register">Create Account</a>
+  <a href="/passwordreset">Forgot Password?</a>
+</div>
 
 {error_message}
 
 <style>
   form {
-    width: 20em;
+    width: 24em;
     margin: 0 auto;
-    text-align: center;
   }
 
   label {
     display: block;
-    text-align: left;
   }
 
   input {
-    width: 100%;
+    width: 90%;
+  }
+
+  #login-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    column-gap: 0.5rem;
+  }
+
+  #input-submit {
+    margin-top: 1.5rem;
+  }
+
+  #login-options {
+    text-align: center;
+    padding-top: 0.5rem;
   }
 </style>

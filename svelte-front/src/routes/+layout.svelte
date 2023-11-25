@@ -34,7 +34,10 @@
     </div>
 
     <div id="rightColumn">
-      <p>something</p>
+      <p>
+        My current plan for this column is to use as a score or something for
+        the learn language aspect.
+      </p>
     </div>
   </div>
 
@@ -101,6 +104,7 @@
     display: grid;
     grid-template-columns: 1fr 5fr 1fr;
     margin: 0.5rem auto;
+    column-gap: 0.5rem;
   }
 
   #leftColumn {

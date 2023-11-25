@@ -81,6 +81,12 @@
 
 <h1>Play Set</h1>
 
+<p>
+  On this page, I've written up a game of set. Currently the "Hint" button does
+  nothing and I have no code to handle end of game. There should also be some
+  limit on the number of cards you can open.
+</p>
+
 <div id="game-buttons">
   <button on:click={() => new_game()}>New Game</button>
   <button>Hint</button>

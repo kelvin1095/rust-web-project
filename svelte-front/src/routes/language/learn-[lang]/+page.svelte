@@ -5,7 +5,7 @@
   const language = data.selected;
 </script>
 
-<h1>Hello! This is where you will learn {language}</h1>
+<h1>Learn {language}</h1>
 
 <style>
   h1 {
