@@ -1,11 +1,10 @@
-use axum::{
-    routing::{get, post},
-    Router,
-};
+use api::api_routes;
+use axum::http::{header, HeaderValue};
+use axum::Router;
 use dotenv::dotenv;
 use sqlx::postgres::PgPoolOptions;
 use tokio::signal;
-use tower_http::trace::TraceLayer;
+use tower_http::{set_header::SetResponseHeaderLayer, trace::TraceLayer};
 use tracing::Level;
 
 use std::env;
@@ -13,17 +12,9 @@ use std::net::SocketAddr;
 use std::time::Duration;
 
 mod api;
-use crate::api::{
-    authorise::authorize,
-    pokemon_route::{get_pokemon_data, get_pokemon_data_by_type},
-    register_user::new_user,
-};
 
 mod static_files;
 use crate::static_files::serve_static_files;
-
-mod test_route;
-use crate::test_route::list_things;
 
 // mod tracing;
 // use crate::tracing::add_tracing_layer;
@@ -49,14 +40,17 @@ async fn main() {
         .expect("Unable to connect to the database");
 
     let app = Router::new()
-        .route("/api/auth", post(authorize))
-        .route("/api/register", post(new_user))
-        .route("/api/pokemon/type", post(get_pokemon_data_by_type))
-        .route("/api/pokemon/:id", get(get_pokemon_data))
-        .route("/api/sum", post(list_things))
-        .with_state(pool)
+        .merge(api_routes(pool))
         .merge(serve_static_files())
-        .layer(TraceLayer::new_for_http());
+        .layer(TraceLayer::new_for_http())
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::X_FRAME_OPTIONS,
+            HeaderValue::from_static("deny"),
+        ))
+        .layer(SetResponseHeaderLayer::if_not_present(
+            header::X_CONTENT_TYPE_OPTIONS,
+            HeaderValue::from_static("nosniff"),
+        ));
 
     // let app = add_tracing_layer(app);
 

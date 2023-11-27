@@ -13,6 +13,7 @@ For my backend, I'm using rust.
   - Should change registration process from account_status active by default to unverified and send out email to change to active.
   - The JWT secret key should be randomised.
   - The table storing user peppers is likely better off in a key value database.
+  - Need to deal with the case where if JWT is expired, what does the frontend do.
 - Need to figure out a way to deliver the actual language part to the user.
   - I want to be able to capture relationship between presented word and submitted choice too.
   - Also need to figure out how to track progress per user.
@@ -24,6 +25,11 @@ For my backend, I'm using rust.
   - A constant stream of mix and match.
   - Typical quizz with 4 choices.
   - A sentence building exercise.
+
+## To Do (security):
+
+- Input validation, need to implement validation to remove spaces
+- Set JWT to httpOnly and map the cookie to the authorization header instead of setting it at the frontend.
 
 ## Potential future plans
 
@@ -63,6 +69,24 @@ CREATE TABLE pokemon (
 \COPY pokemon FROM 'PokemonStats.csv' WITH (FORMAT csv, HEADER true);
 -->
 
+### Accessing postgres from the terminal:
+
+`sudo su postgres
+psql
+
+psql -f pokemon.sql
+psql -f pokemon.sql -v pokemonIndex=5`
+
+note: for string type columns, surround the variable name in
+
+Test logging in:
+
+`curl -X POST -i \
+ localhost:3000/api/register \
+ -H 'Content-Type: application/json' \
+ -d '{"username": "admin", "name": "admin", "email": "example@email.com", "password":"password"}'
+`
+
 ### Creating tables for user log in information
 
 I think there should be another table for things you can change frequently such as:
@@ -100,20 +124,6 @@ Resetting table:
 `DROP TABLE users;
 DROP TABLE user_peppers;`
 
-### Accessing postgres from the terminal:
+# TO DO:
 
-`sudo su postgres
-psql
-
-psql -f pokemon.sql
-psql -f pokemon.sql -v pokemonIndex=5`
-
-note: for string type columns, surround the variable name in
-
-Test logging in:
-
-`curl -X POST -i \
- localhost:3000/api/register \
- -H 'Content-Type: application/json' \
- -d '{"username": "admin", "name": "admin", "email": "example@email.com", "password":"password"}'
-`
+- Make tracing the base router, move the router to a different function/file

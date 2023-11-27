@@ -17,6 +17,11 @@
   for directions and understand the directions.
 </p>
 
+<p>
+  For getting the site up and running, I think I will need to skip teaching how
+  to read katakana, hiragana and hangul
+</p>
+
 <ul>
   <li>greetings/introduction/farewells</li>
   <li>numbers</li>
@@ -27,8 +32,9 @@
   <ul><li>big, small, wide, narrow</li></ul>
   <li>colours</li>
   <li>places</li>
-  <ul><li>restaurant, hotel, station</li></ul>
-  <ul><li>post office, police station, park</li></ul>
+  <ul><li>countries and languages</li></ul>
+  <ul><li>different types of rooms like bedroom, kitchen</li></ul>
+  <ul><li>public places like post office, police station, park</li></ul>
   <li>food</li>
 </ul>
 

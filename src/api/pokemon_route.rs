@@ -1,10 +1,13 @@
+use std::sync::Arc;
+
 use axum::{
     extract::{Path, State},
     http::StatusCode,
     Json,
 };
 use serde::{Deserialize, Serialize};
-use sqlx::postgres::PgPool;
+
+use crate::api::AppState;
 
 #[derive(Serialize)]
 struct Pokemon {
@@ -44,7 +47,7 @@ struct PokemonTypeList {
 
 pub async fn get_pokemon_data(
     Path(id): Path<String>,
-    State(pool): State<PgPool>,
+    State(pool): State<Arc<AppState>>,
 ) -> Result<String, (StatusCode, String)> {
     let pokedex_number = match id.parse::<i32>() {
         Ok(result) => result,
@@ -52,7 +55,7 @@ pub async fn get_pokemon_data(
     };
 
     let query_result = sqlx::query_file_as!(Pokemon, "src/sql/pokemon.sql", pokedex_number)
-        .fetch_all(&pool)
+        .fetch_all(&pool.connection_pool)
         .await;
 
     let json_result = match query_result {
@@ -67,7 +70,7 @@ pub async fn get_pokemon_data(
 }
 
 pub async fn get_pokemon_data_by_type(
-    State(pool): State<PgPool>,
+    State(pool): State<Arc<AppState>>,
     Json(payload): Json<PokemonTypeQuery>,
 ) -> Result<String, (StatusCode, String)> {
     let query_result = sqlx::query_file_as!(
@@ -76,7 +79,7 @@ pub async fn get_pokemon_data_by_type(
         payload.type1,
         payload.type2
     )
-    .fetch_all(&pool)
+    .fetch_all(&pool.connection_pool)
     .await;
 
     let json_result = match query_result {

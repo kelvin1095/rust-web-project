@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use argon2::{password_hash::PasswordVerifier, Algorithm, Argon2, Params, PasswordHash, Version};
 use axum::{
     extract::State,
@@ -10,7 +12,8 @@ use dotenv::dotenv;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+
+use crate::api::AppState;
 
 #[derive(Serialize)]
 struct AuthBody {
@@ -46,11 +49,11 @@ static SECRET_KEY: Lazy<String> = Lazy::new(|| {
 });
 
 pub async fn authorize(
-    State(pool): State<PgPool>,
+    State(pool): State<Arc<AppState>>,
     Json(payload): Json<User>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
     let user_match = sqlx::query_file_as!(UserDetails, "src/sql/matchUser.sql", payload.id)
-        .fetch_one(&pool)
+        .fetch_one(&pool.connection_pool)
         .await;
 
     let result: UserDetails = match user_match {

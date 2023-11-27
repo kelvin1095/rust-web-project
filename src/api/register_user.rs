@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use argon2::{password_hash::Salt, Algorithm, Argon2, Params, PasswordHasher, Version};
 use axum::{
     extract::{Json, State},
@@ -5,7 +7,8 @@ use axum::{
 };
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+
+use crate::api::AppState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct NewUser {
@@ -15,7 +18,7 @@ pub struct NewUser {
 }
 
 pub async fn new_user(
-    State(pool): State<PgPool>,
+    State(pool): State<Arc<AppState>>,
     Json(payload): Json<NewUser>,
 ) -> Result<(), (StatusCode, String)> {
     let salt_string = Alphanumeric.sample_string(&mut rand::thread_rng(), 16);
@@ -42,7 +45,7 @@ pub async fn new_user(
         phc,
         pepper_string
     )
-    .execute(&pool)
+    .execute(&pool.connection_pool)
     .await;
 
     let _ = match insert_new_user {
