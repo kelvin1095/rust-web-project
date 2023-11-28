@@ -56,7 +56,6 @@
       type1: type1,
       type2: type2,
     };
-    console.log(JSON.stringify(formData));
 
     try {
       const response = await fetch("/api/pokemon/type", {
@@ -69,7 +68,6 @@
 
       // Handle the response as needed
       const data: Pokemon[] = await response.json();
-      console.log("API Response:", data);
       result = data;
     } catch (error) {
       console.error("Error:", error);

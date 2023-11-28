@@ -13,8 +13,6 @@
       password: password,
     };
 
-    console.log(JSON.stringify(formData));
-
     try {
       const response = await fetch("/api/auth", {
         method: "POST",
@@ -30,11 +28,9 @@
         );
       }
 
-      console.log("API Response:", response.status);
       login_status_store.set(true);
       localStorage.setItem("username", id);
 
-      console.log("hello from login: ", id);
       goto("/");
     } catch (error) {
       console.error("Error:", error);

@@ -4,6 +4,8 @@ use axum::Router;
 use dotenv::dotenv;
 use sqlx::postgres::PgPoolOptions;
 use tokio::signal;
+use tower::ServiceBuilder;
+use tower_http::timeout::TimeoutLayer;
 use tower_http::{set_header::SetResponseHeaderLayer, trace::TraceLayer};
 use tracing::Level;
 
@@ -15,9 +17,6 @@ mod api;
 
 mod static_files;
 use crate::static_files::serve_static_files;
-
-// mod tracing;
-// use crate::tracing::add_tracing_layer;
 
 #[tokio::main]
 async fn main() {
@@ -34,15 +33,12 @@ async fn main() {
     let pool = PgPoolOptions::new()
         .min_connections(2)
         .max_connections(5)
-        .acquire_timeout(Duration::from_secs(3))
+        .acquire_timeout(Duration::from_secs(5))
         .connect(&database_url)
         .await
         .expect("Unable to connect to the database");
 
-    let app = Router::new()
-        .merge(api_routes(pool))
-        .merge(serve_static_files())
-        .layer(TraceLayer::new_for_http())
+    let middleware = ServiceBuilder::new()
         .layer(SetResponseHeaderLayer::if_not_present(
             header::X_FRAME_OPTIONS,
             HeaderValue::from_static("deny"),
@@ -50,9 +46,14 @@ async fn main() {
         .layer(SetResponseHeaderLayer::if_not_present(
             header::X_CONTENT_TYPE_OPTIONS,
             HeaderValue::from_static("nosniff"),
-        ));
+        ))
+        .layer(TraceLayer::new_for_http())
+        .layer(TimeoutLayer::new(Duration::from_secs(30)));
 
-    // let app = add_tracing_layer(app);
+    let app = Router::new()
+        .merge(api_routes(pool))
+        .merge(serve_static_files())
+        .layer(middleware);
 
     axum::Server::bind(&addr)
         .serve(app.into_make_service())

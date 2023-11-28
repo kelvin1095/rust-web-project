@@ -1,12 +1,75 @@
 <script lang="ts">
   let languageList = ["Mandarin", "Japanese", "Korean"];
+
+  //   https://codepen.io/josephwong2004/pen/ExgoKde
+
+  const greetings = [
+    "Hello",
+    "Hola",
+    "Bonjour",
+    "Hallo",
+    "Ciao",
+    "こんにちは",
+    "안녕하세요",
+    "你好",
+    "Привет",
+    "مرحبا",
+  ];
+
+  let greeting_display: string = "";
+
+  let i = 0;
+  let j = 0;
+  let greeting = greetings[0];
+  let speed = 50;
+
+  function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function typeGreeting() {
+    await delay(1000);
+    while (i < greeting.length) {
+      await delay(speed);
+      greeting_display += greeting.charAt(i);
+      i++;
+    }
+    return;
+  }
+
+  async function deleteGreeting() {
+    await delay(2000);
+    while (i > 0) {
+      await delay(speed);
+      greeting_display = greeting_display.substring(
+        0,
+        greeting_display.length - 1
+      );
+      i--;
+    }
+    return;
+  }
+
+  async function cycleGreeting() {
+    while (true) {
+      while (j < greetings.length) {
+        greeting = greetings[j];
+        await typeGreeting();
+        await deleteGreeting();
+        j++;
+      }
+      j = 0;
+    }
+  }
+
+  cycleGreeting();
 </script>
 
 <svelte:head>
   <title>Language</title>
 </svelte:head>
 
-<h1>Welcome to my new test language page!</h1>
+<h1>Learn a Language!</h1>
 <p>
   I want to put a game here thats basically a mix and match using cards similar
   to my set game
@@ -21,6 +84,11 @@
   For getting the site up and running, I think I will need to skip teaching how
   to read katakana, hiragana and hangul
 </p>
+
+<h2>
+  {greeting_display}
+  <span id="caret"></span>
+</h2>
 
 <ul>
   <li>greetings/introduction/farewells</li>
@@ -47,8 +115,36 @@
     text-align: center;
   }
 
+  h2 {
+    font-size: xx-large;
+    text-align: center;
+  }
+
   ul {
     list-style-type: disc;
     padding: 0 2rem;
+  }
+
+  #caret {
+    display: inline-block;
+    width: 1px;
+    height: 1.2em;
+    background-color: black;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    40% {
+      opacity: 1;
+    }
+    60% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
   }
 </style>

@@ -17,18 +17,25 @@ For my backend, I'm using rust.
 - Need to figure out a way to deliver the actual language part to the user.
   - I want to be able to capture relationship between presented word and submitted choice too.
   - Also need to figure out how to track progress per user.
+- I want to be implement OAuth as well so people can sign in via google, microsfot, facebook or apple.
 
 ## To Do (frontend):
 
 - Better Design (Never ending).
 - Types of quizzes:
+
   - A constant stream of mix and match.
   - Typical quizz with 4 choices.
   - A sentence building exercise.
 
+## To Do (database):
+
+- Probably need to have more roles.
+- unsure how to set up user progress tracking.
+
 ## To Do (security):
 
-- Input validation, need to implement validation to remove spaces
+- Input validation, need to implement validation to remove spaces.
 - Set JWT to httpOnly and map the cookie to the authorization header instead of setting it at the frontend.
 
 ## Potential future plans
