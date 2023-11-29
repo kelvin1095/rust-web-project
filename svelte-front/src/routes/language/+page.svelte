@@ -85,20 +85,24 @@
   to read katakana, hiragana and hangul
 </p>
 
-<h2>
-  {greeting_display}
-  <span id="caret"></span>
+<h2 id="greeting-type">
+  <span id="greetings">{greeting_display}</span>
+  <span id="caret">&nbsp;</span>
 </h2>
 
 <ul>
   <li>greetings/introduction/farewells</li>
+  <li>family</li>
+  <ul><li>mother, father, brother, sister</li></ul>
   <li>numbers</li>
   <li>time and duration</li>
   <li>adjectives</li>
   <ul><li>front, back, left, right</li></ul>
   <ul><li>early, late, fast, slow</li></ul>
   <ul><li>big, small, wide, narrow</li></ul>
+  <ul><li>heavy, light, tall, short</li></ul>
   <li>colours</li>
+  <li>weather</li>
   <li>places</li>
   <ul><li>countries and languages</li></ul>
   <ul><li>different types of rooms like bedroom, kitchen</li></ul>
@@ -111,11 +115,14 @@
 {/each}
 
 <style>
+  @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap");
+
   h1 {
     text-align: center;
   }
 
   h2 {
+    font-family: "Noto Sans JP";
     font-size: xx-large;
     text-align: center;
   }
@@ -125,10 +132,15 @@
     padding: 0 2rem;
   }
 
+  #greeting-type {
+    height: 5rem;
+  }
+
   #caret {
     display: inline-block;
     width: 1px;
-    height: 1.2em;
+    height: 2.5rem;
+    margin-left: -0.5rem;
     background-color: black;
     animation: blink 1s infinite;
   }
