@@ -94,6 +94,12 @@ Test logging in:
  -d '{"username": "admin", "name": "admin", "email": "example@email.com", "password":"password"}'
 `
 
+`curl -X POST -i \
+ localhost:3000/api/product \
+ -H 'Content-Type: application/json' \
+ -d '{"num1": "22", "num2": "33"}'
+`
+
 ### Creating tables for user log in information
 
 I think there should be another table for things you can change frequently such as:

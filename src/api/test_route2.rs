@@ -1,14 +1,11 @@
 use axum::{
-    http::{HeaderMap, StatusCode},
+    http::{header::HeaderMap, StatusCode},
     Json,
 };
 use axum_extra::{
     headers::{authorization::Bearer, Authorization},
     TypedHeader,
 };
-use dotenv::dotenv;
-use jsonwebtoken::{decode, DecodingKey, Validation};
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -31,38 +28,13 @@ struct Total {
     method: String,
 }
 
-static SECRET_KEY: Lazy<String> = Lazy::new(|| {
-    dotenv().ok();
-    let secret = std::env::var("JWT_SECRET_KEY").expect("missing secret key");
-    return secret;
-});
-
-fn is_authorised(
-    auth_token: TypedHeader<Authorization<Bearer>>,
-) -> Result<(), (StatusCode, String)> {
-    let token = auth_token.token();
-
-    let token_message = decode::<Claims>(
-        &token,
-        &DecodingKey::from_secret(SECRET_KEY.as_bytes()),
-        &Validation::default(),
-    );
-
-    let _ = match token_message {
-        Ok(result) => result,
-        Err(err) => return Err((StatusCode::UNAUTHORIZED, err.to_string())),
-    };
-
-    return Ok(());
-}
-
-pub async fn list_things(
+pub async fn list_things2(
     auth_token: TypedHeader<Authorization<Bearer>>,
     headers: HeaderMap,
     Json(payload): Json<Summation>,
 ) -> Result<String, (StatusCode, String)> {
+    println!("{:?}", auth_token);
     println!("{:?}", headers);
-    let _ = is_authorised(auth_token)?;
 
     let num1_parsed = match payload.num1.parse::<f32>() {
         Ok(result) => result,
@@ -75,7 +47,7 @@ pub async fn list_things(
     };
 
     let total: Total = Total {
-        total: num1_parsed + num2_parsed,
+        total: num1_parsed * num2_parsed,
         method: "Post".to_string(),
     };
 

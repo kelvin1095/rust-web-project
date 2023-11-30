@@ -11,12 +11,14 @@ use crate::api::{
     pokemon_route::{get_pokemon_data, get_pokemon_data_by_type},
     register_user::new_user,
     test_route::list_things,
+    test_route2::list_things2,
 };
 
 pub mod authorise;
 pub mod pokemon_route;
 pub mod register_user;
 pub mod test_route;
+pub mod test_route2;
 
 pub struct AppState {
     pub connection_pool: Pool<Postgres>,
@@ -33,6 +35,7 @@ pub fn api_routes(pool: Pool<Postgres>) -> Router {
         .route("/api/pokemon/type", post(get_pokemon_data_by_type))
         .route("/api/pokemon/:id", get(get_pokemon_data))
         .route("/api/sum", post(list_things))
+        .route("/api/product", post(list_things2))
         .with_state(connection);
 
     return app;

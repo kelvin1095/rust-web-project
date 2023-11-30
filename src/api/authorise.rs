@@ -5,7 +5,10 @@ use axum::{
     extract::State,
     http::{header::SET_COOKIE, HeaderMap, StatusCode},
     response::IntoResponse,
-    Json,
+};
+use axum_extra::{
+    headers::{authorization::Basic, Authorization},
+    TypedHeader,
 };
 use chrono::{Duration, Utc};
 use dotenv::dotenv;
@@ -19,12 +22,6 @@ use crate::api::AppState;
 struct AuthBody {
     token_type: String,
     access_token: String,
-}
-
-#[derive(Deserialize)]
-pub struct User {
-    id: String,
-    password: String,
 }
 
 #[derive(Deserialize)]
@@ -50,11 +47,12 @@ static SECRET_KEY: Lazy<String> = Lazy::new(|| {
 
 pub async fn authorize(
     State(pool): State<Arc<AppState>>,
-    Json(payload): Json<User>,
+    credential: TypedHeader<Authorization<Basic>>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let user_match = sqlx::query_file_as!(UserDetails, "src/sql/matchUser.sql", payload.id)
-        .fetch_one(&pool.connection_pool)
-        .await;
+    let user_match =
+        sqlx::query_file_as!(UserDetails, "src/sql/matchUser.sql", credential.username())
+            .fetch_one(&pool.connection_pool)
+            .await;
 
     let result: UserDetails = match user_match {
         Ok(result) => result,
@@ -71,7 +69,7 @@ pub async fn authorize(
     )
     .unwrap();
 
-    let _ = match config.verify_password(payload.password.as_bytes(), &check_password) {
+    let _ = match config.verify_password(credential.password().as_bytes(), &check_password) {
         Ok(_) => (),
         Err(err) => return Err((StatusCode::UNAUTHORIZED, err.to_string())),
     };
@@ -82,7 +80,7 @@ pub async fn authorize(
 
     let test_user = Claims {
         sub: result.user_id.to_string(),
-        name: payload.id,
+        name: credential.username().to_string(),
         iat: iat,
         exp: exp,
     };
@@ -94,7 +92,8 @@ pub async fn authorize(
     )
     .unwrap();
 
-    let token_header = "auth-token=".to_owned() + &token + "; Path=/; Secure; SameSite=Strict";
+    let token_header =
+        "auth-token=".to_owned() + &token + "; Max-Age=86400; Path=/; Secure; SameSite=Strict";
 
     let mut headers = HeaderMap::new();
     headers.insert(SET_COOKIE, token_header.as_str().parse().unwrap());

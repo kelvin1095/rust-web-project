@@ -1,16 +1,15 @@
 use api::api_routes;
-use axum::http::{header, HeaderValue};
-use axum::Router;
+use axum::{
+    http::{header, HeaderValue},
+    Router,
+};
 use dotenv::dotenv;
 use sqlx::postgres::PgPoolOptions;
-use tokio::signal;
 use tower::ServiceBuilder;
-use tower_http::timeout::TimeoutLayer;
-use tower_http::{set_header::SetResponseHeaderLayer, trace::TraceLayer};
+use tower_http::{set_header::SetResponseHeaderLayer, timeout::TimeoutLayer, trace::TraceLayer};
 use tracing::Level;
 
 use std::env;
-use std::net::SocketAddr;
 use std::time::Duration;
 
 mod api;
@@ -22,10 +21,12 @@ use crate::static_files::serve_static_files;
 async fn main() {
     dotenv().expect("Missing dotenv file");
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
+        .await
+        .unwrap();
 
     tracing_subscriber::fmt()
-        .with_max_level(Level::TRACE)
+        .with_max_level(Level::DEBUG)
         .init();
 
     let database_url: String = env::var("DATABASE_URL").expect("missing database url");
@@ -55,31 +56,7 @@ async fn main() {
         .merge(serve_static_files())
         .layer(middleware);
 
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .with_graceful_shutdown(shutdown_signal())
+    axum::serve(listener, app)
         .await
         .expect("Server failed to start");
-}
-
-async fn shutdown_signal() {
-    let ctrl_c = async {
-        signal::ctrl_c()
-            .await
-            .expect("failed to install Ctrl+C handler");
-    };
-
-    let terminate = async {
-        signal::unix::signal(signal::unix::SignalKind::terminate())
-            .expect("failed to install signal handler")
-            .recv()
-            .await;
-    };
-
-    tokio::select! {
-        _ = ctrl_c => {},
-        _ = terminate => {},
-    }
-
-    println!("signal received, starting graceful shutdown");
 }

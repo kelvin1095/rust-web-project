@@ -66,8 +66,6 @@
         body: JSON.stringify(newUser),
       });
 
-      console.log(response);
-
       if (!response.ok) {
         throw new Error("ERROR");
       }

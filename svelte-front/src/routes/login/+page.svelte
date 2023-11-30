@@ -8,18 +8,14 @@
 
   const handleSubmit = async (event: Event) => {
     event.preventDefault();
-    const formData = {
-      id: id,
-      password: password,
-    };
 
     try {
       const response = await fetch("/api/auth", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Basic ${btoa(id + ":" + password)}`,
         },
-        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
