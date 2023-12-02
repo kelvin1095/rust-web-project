@@ -1,11 +1,9 @@
 import { writable } from "svelte/store";
 
-type Pokemon = {
-  pokedexnumber: number;
+export type Pokemon = {
+  pokedex_number: number;
   name: string;
   form?: string;
-  type1: string;
-  type2?: string;
 };
 
 export const login_status_store = writable(

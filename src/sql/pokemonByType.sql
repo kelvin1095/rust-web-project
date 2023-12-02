@@ -1,16 +1,14 @@
 SELECT
-    pokedexnumber,
+    pokedex_number,
     name,
-    form,
-    type1,
-    type2
+    form
 FROM
     pokemon
 WHERE
-    type1 LIKE $1
+    type_1 = $1
     AND (
         CASE
-            WHEN $2 = '' THEN type2 IS NULL
-            ELSE type2 LIKE $2
+            WHEN $2 = '' THEN type_2 IS NULL
+            ELSE type_2 = $2
         END
     );

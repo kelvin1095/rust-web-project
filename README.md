@@ -5,6 +5,14 @@ This project is to build a webapp using svelte as the frontend and rust as the b
 For my frontend, I'm using svelte with typescript.
 For my backend, I'm using rust.
 
+## Quiz Question Types
+
+- Show an english word with possible answers in a different language
+- Show a different language word with possible answers in english
+- Mix and match, 5 english words and 5 foreign language words
+- Show a sentance in english and get the user to put words together
+- Show a sentance in foreign language and get the user to put words together
+
 ## To Do (backend):
 
 - Refactor/organise code (Never ending).
@@ -31,7 +39,8 @@ For my backend, I'm using rust.
 ## To Do (database):
 
 - Probably need to have more roles.
-- unsure how to set up user progress tracking.
+- Still thinking of how to set user progress tracking.
+- I want to use enums
 
 ## To Do (security):
 
@@ -53,24 +62,28 @@ cargo run --manifest-path rust-back/Cargo.toml
 <!--
 DROP TABLE pokemon;
 
+CREATE TYPE pokemon_type AS ENUM ('Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying',  'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy');
+
+view enums in the pg_enum table.
+
 CREATE TABLE pokemon (
-  PokedexNumber INT,
-  Name VARCHAR(255),
-  Form VARCHAR(255),
-  Type1 VARCHAR(255),
-  Type2 VARCHAR(255),
-  Ability1 VARCHAR(255),
-  Ability2 VARCHAR(255),
-  HiddenAbility VARCHAR(255),
-  HP INT,
-  Att INT,
-  Def INT,
-  SpA INT,
-  SpD INT,
-  Spe INT,
+  Pokedex_Number INT NOT NULL,
+  Name VARCHAR(50) NOT NULL,
+  Form VARCHAR(50),
+  Type_1 pokemon_type NOT NULL,
+  Type_2 pokemon_type,
+  Ability_1 VARCHAR(50) NOT NULL,
+  Ability_2 VARCHAR(50),
+  Hidden_Ability VARCHAR(50),
+  HP INT NOT NULL,
+  Att INT NOT NULL,
+  Def INT NOT NULL,
+  SpA INT NOT NULL,
+  SpD INT NOT NULL,
+  Spe INT NOT NULL,
   Height REAL,
   Weight REAL,
-  PokemonImageFilename VARCHAR(255)
+  Pokemon_Image VARCHAR(50) NOT NULL
   );
 
 \COPY pokemon FROM 'PokemonStats.csv' WITH (FORMAT csv, HEADER true);
@@ -100,6 +113,12 @@ Test logging in:
  -d '{"num1": "22", "num2": "33"}'
 `
 
+`curl -X POST -i \
+ localhost:3000/api/wordlist \
+ -H 'Content-Type: application/json' \
+ -d '{"language": "japanese", "category": "Location"}'
+`
+
 ### Creating tables for user log in information
 
 I think there should be another table for things you can change frequently such as:
@@ -107,28 +126,29 @@ I think there should be another table for things you can change frequently such 
 - username
 - email
 - preferred name
+- profile picture?
 
 `CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    hashed_password VARCHAR(255) NOT NULL,
+    username VARCHAR(20) UNIQUE NOT NULL,
+    email VARCHAR(50) UNIQUE NOT NULL,
+    hashed_password VARCHAR(100) NOT NULL,
     date_registered TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_changed_password TIMESTAMP,
-    account_status VARCHAR(20) DEFAULT 'active',
+    account_status VARCHAR(20) DEFAULT 'active'
 );`
 
 Since I'm storing the salt in the hashed_password column as phc format, the salts table is redundant.
 
 `CREATE TABLE user_salts (
     user_id SERIAL PRIMARY KEY,
-    salt_value VARCHAR(255) NOT NULL,
+    salt_value VARCHAR(20) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );`
 
 `CREATE TABLE user_peppers (
     user_id SERIAL PRIMARY KEY,
-    pepper_value VARCHAR(255) NOT NULL,
+    pepper_value VARCHAR(20) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );`
 
@@ -137,6 +157,47 @@ Resetting table:
 `DROP TABLE users;
 DROP TABLE user_peppers;`
 
+### Creating a vocab list table
+
+`CREATE TABLE vocablist (
+    English varchar(50) NOT NULL,
+    Japanese varchar(50) NOT NULL,
+    Japanese_Romanized varchar(50) NOT NULL,
+    Korean varchar(50) NOT NULL,
+    Korean_Romanized varchar(50) NOT NULL,
+    Mandarin varchar(50) NOT NULL,
+    Mandarin_Romanized varchar(50) NOT NULL,
+    Category varchar(50) NOT NULL
+);`
+
+\COPY vocablist FROM 'vocablist.csv' DELIMITER ',' CSV HEADER;
+
+DROP TABLE vocablist;
+
 # TO DO:
 
 - Make tracing the base router, move the router to a different function/file
+
+SELECT english,
+CASE
+WHEN 'japanese' = 'japanese' THEN japanese
+WHEN 'japanese' = 'korean' THEN korean
+WHEN 'japanese' = 'mandarin' THEN mandarin
+END AS foreign
+FROM vocablist WHERE category = 'Nature';
+
+SELECT english,
+CASE
+WHEN 'korean' = 'japanese' THEN japanese
+WHEN 'korean' = 'korean' THEN korean
+WHEN 'korean' = 'mandarin' THEN mandarin
+END AS foreign
+FROM vocablist WHERE category = 'Nature';
+
+SELECT english,
+CASE
+WHEN 'mandarin' = 'japanese' THEN japanese
+WHEN 'mandarin' = 'korean' THEN korean
+WHEN 'mandarin' = 'mandarin' THEN mandarin
+END AS foreign
+FROM vocablist WHERE category = 'Nature';

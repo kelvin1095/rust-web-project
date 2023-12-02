@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use argon2::{password_hash::PasswordVerifier, Algorithm, Argon2, Params, PasswordHash, Version};
 use axum::{
     extract::State,
@@ -15,6 +13,7 @@ use dotenv::dotenv;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 use crate::api::AppState;
 

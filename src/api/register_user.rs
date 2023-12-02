@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use argon2::{password_hash::Salt, Algorithm, Argon2, Params, PasswordHasher, Version};
 use axum::{
     extract::{Json, State},
@@ -7,6 +5,7 @@ use axum::{
 };
 use rand::distributions::{Alphanumeric, DistString};
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 use crate::api::AppState;
 

@@ -14,13 +14,13 @@
 
 <div>
   <h1>
-    #{pokemon.pokedexnumber.toString().padStart(4, "0")}
+    #{pokemon.pokedex_number.toString().padStart(4, "0")}
     {pokemon.name}
     {pokemon.form ? "(" + pokemon.form + ")" : ""}
   </h1>
 
   <div class="image">
-    <img src="/PokemonHome/{pokemon.pokemonimagefilename}" alt={pokemon.name} />
+    <img src="/PokemonHome/{pokemon.pokemon_image}" alt={pokemon.name} />
   </div>
 
   <div class="form-button-group">
@@ -41,8 +41,8 @@
       <tr>
         <td>
           <div>
-            {pokemon.type1}
-            {pokemon.type2 || ""}
+            {pokemon.type_1}
+            {pokemon.type_2 || ""}
           </div>
         </td>
       </tr>
@@ -74,9 +74,9 @@
     </thead>
     <tbody>
       <tr>
-        <td>{pokemon.ability1}</td>
-        <td>{pokemon.ability2 || ""}</td>
-        <td>{pokemon.hiddenability || ""}</td>
+        <td>{pokemon.ability_1}</td>
+        <td>{pokemon.ability_2 || ""}</td>
+        <td>{pokemon.hidden_ability || ""}</td>
       </tr>
     </tbody>
   </table>

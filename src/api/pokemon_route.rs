@@ -11,14 +11,14 @@ use crate::api::AppState;
 
 #[derive(Serialize)]
 struct Pokemon {
-    pokedexnumber: Option<i32>,
+    pokedex_number: Option<i32>,
     name: Option<String>,
     form: Option<String>,
-    type1: Option<String>,
-    type2: Option<String>,
-    ability1: Option<String>,
-    ability2: Option<String>,
-    hiddenability: Option<String>,
+    type_1: Option<String>,
+    type_2: Option<String>,
+    ability_1: Option<String>,
+    ability_2: Option<String>,
+    hidden_ability: Option<String>,
     hp: Option<i32>,
     att: Option<i32>,
     def: Option<i32>,
@@ -27,7 +27,7 @@ struct Pokemon {
     spe: Option<i32>,
     height: Option<f32>,
     weight: Option<f32>,
-    pokemonimagefilename: Option<String>,
+    pokemon_image: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -38,11 +38,9 @@ pub struct PokemonTypeQuery {
 
 #[derive(Serialize, Debug)]
 struct PokemonTypeList {
-    pokedexnumber: Option<i32>,
+    pokedex_number: Option<i32>,
     name: Option<String>,
     form: Option<String>,
-    type1: Option<String>,
-    type2: Option<String>,
 }
 
 pub async fn get_pokemon_data(

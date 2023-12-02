@@ -11,45 +11,45 @@
   let email = "";
 
   const handleSubmit = async () => {
-    const minLength = 8;
-    const uppercaseRegex = /[A-Z]/;
-    const lowercaseRegex = /[a-z]/;
-    const digitRegex = /\d/;
+    // const minLength = 8;
+    // const uppercaseRegex = /[A-Z]/;
+    // const lowercaseRegex = /[a-z]/;
+    // const digitRegex = /\d/;
 
-    if (password !== passwordRepeat) {
-      alert("mismatch password");
-      return;
-    }
+    // // if (password !== passwordRepeat) {
+    // //   alert("mismatch password");
+    // //   return;
+    // // }
 
-    if (password.length < minLength) {
-      alert("password must be greater than 8 characters long");
-      return;
-    }
+    // // if (password.length < minLength) {
+    // //   alert("password must be greater than 8 characters long");
+    // //   return;
+    // // }
 
-    if (!uppercaseRegex.test(password)) {
-      alert("password must contain an uppercase character");
-      return;
-    }
+    // // if (!uppercaseRegex.test(password)) {
+    // //   alert("password must contain an uppercase character");
+    // //   return;
+    // // }
 
-    if (!lowercaseRegex.test(password)) {
-      alert("password must contain a lowercase character");
-      return;
-    }
+    // // if (!lowercaseRegex.test(password)) {
+    // //   alert("password must contain a lowercase character");
+    // //   return;
+    // // }
 
-    if (!digitRegex.test(password)) {
-      alert("password must contain a numeric character");
-      return;
-    }
+    // // if (!digitRegex.test(password)) {
+    // //   alert("password must contain a numeric character");
+    // //   return;
+    // // }
 
-    if (!id.length) {
-      alert("please enter a username");
-      return;
-    }
+    // // if (!id.length) {
+    // //   alert("please enter a username");
+    // //   return;
+    // // }
 
-    if (!email.length) {
-      alert("please enter a email");
-      return;
-    }
+    // // if (!email.length) {
+    // //   alert("please enter a email");
+    // //   return;
+    // // }
 
     let newUser: NewUser = {
       username: id,

@@ -3,11 +3,9 @@
   import { onMount } from "svelte";
 
   type Pokemon = {
-    pokedexnumber: number;
+    pokedex_number: number;
     name: string;
     form?: string;
-    type1: string;
-    type2?: string;
   };
 
   const pokemonTypes = [
@@ -129,8 +127,8 @@
   <ul>
     {#each result as pokemon, i}
       <li>
-        <a href="/pokemon/{pokemon.pokedexnumber}">
-          #{pokemon.pokedexnumber.toString().padStart(4, "0")}
+        <a href="/pokemon/{pokemon.pokedex_number}">
+          #{pokemon.pokedex_number.toString().padStart(4, "0")}
           {pokemon.name}
           {pokemon.form ? "(" + pokemon.form + ")" : ""}
         </a>
