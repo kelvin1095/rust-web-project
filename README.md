@@ -13,7 +13,9 @@ For my backend, I'm using rust.
 - Show a sentance in english and get the user to put words together
 - Show a sentance in foreign language and get the user to put words together
 
-## To Do (backend):
+## To Do
+
+### Backend:
 
 - Refactor/organise code (Never ending).
 - Proper Error handling (Never ending).
@@ -27,25 +29,28 @@ For my backend, I'm using rust.
   - Also need to figure out how to track progress per user.
 - I want to be implement OAuth as well so people can sign in via google, microsfot, facebook or apple.
 
-## To Do (frontend):
+### Frontend:
 
 - Better Design (Never ending).
 - Types of quizzes:
-
   - A constant stream of mix and match.
   - Typical quizz with 4 choices.
   - A sentence building exercise.
 
-## To Do (database):
+### Database:
 
 - Probably need to have more roles.
 - Still thinking of how to set user progress tracking.
 - I want to use enums
 
-## To Do (security):
+### Security:
 
 - Input validation, need to implement validation to remove spaces.
 - Set JWT to httpOnly and map the cookie to the authorization header instead of setting it at the frontend.
+
+### Infrastructure:
+
+- Looking for a place to host my app. Currently considering AWS
 
 ## Potential future plans
 
@@ -56,8 +61,12 @@ For my backend, I'm using rust.
 
 # Important commands
 
+Build front and backend.
+
+```
 npm --prefix svelte-front run build
 cargo run --manifest-path rust-back/Cargo.toml
+```
 
 <!--
 DROP TABLE pokemon;
@@ -89,35 +98,34 @@ CREATE TABLE pokemon (
 \COPY pokemon FROM 'PokemonStats.csv' WITH (FORMAT csv, HEADER true);
 -->
 
-### Accessing postgres from the terminal:
+Accessing postgres from the terminal:
 
-`sudo su postgres
+```bash
+sudo su postgres
 psql
 
 psql -f pokemon.sql
 psql -f pokemon.sql -v pokemonIndex=5`
-
-note: for string type columns, surround the variable name in
+```
 
 Test logging in:
 
-`curl -X POST -i \
- localhost:3000/api/register \
- -H 'Content-Type: application/json' \
- -d '{"username": "admin", "name": "admin", "email": "example@email.com", "password":"password"}'
-`
+```bash
+curl -X POST -i \
+localhost:3000/api/register \
+-H 'Content-Type: application/json' \
+-d '{"username": "admin", "name": "admin", "email": "example@email.com", "password":"password"}'
 
-`curl -X POST -i \
- localhost:3000/api/product \
- -H 'Content-Type: application/json' \
- -d '{"num1": "22", "num2": "33"}'
-`
+curl -X POST -i \
+localhost:3000/api/product \
+-H 'Content-Type: application/json' \
+-d '{"num1": "22", "num2": "33"}'
 
-`curl -X POST -i \
- localhost:3000/api/wordlist \
- -H 'Content-Type: application/json' \
- -d '{"language": "japanese", "category": "Location"}'
-`
+curl -X POST -i \
+localhost:3000/api/wordlist \
+-H 'Content-Type: application/json' \
+-d '{"language": "japanese", "category": "Location"}'
+```
 
 ### Creating tables for user log in information
 
@@ -128,7 +136,10 @@ I think there should be another table for things you can change frequently such 
 - preferred name
 - profile picture?
 
-`CREATE TABLE users (
+I'm storing the salt in the hashed_password column as phc format. The peppers should be stored in a different database
+
+```SQL
+CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(20) UNIQUE NOT NULL,
     email VARCHAR(50) UNIQUE NOT NULL,
@@ -136,30 +147,22 @@ I think there should be another table for things you can change frequently such 
     date_registered TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_changed_password TIMESTAMP,
     account_status VARCHAR(20) DEFAULT 'active'
-);`
+);
 
-Since I'm storing the salt in the hashed_password column as phc format, the salts table is redundant.
-
-`CREATE TABLE user_salts (
-    user_id SERIAL PRIMARY KEY,
-    salt_value VARCHAR(20) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
-);`
-
-`CREATE TABLE user_peppers (
+CREATE TABLE user_peppers (
     user_id SERIAL PRIMARY KEY,
     pepper_value VARCHAR(20) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
-);`
+);
 
-Resetting table:
-
-`DROP TABLE users;
-DROP TABLE user_peppers;`
+DROP TABLE users;
+DROP TABLE user_peppers;
+```
 
 ### Creating a vocab list table
 
-`CREATE TABLE vocablist (
+```SQL
+CREATE TABLE vocablist (
     English varchar(50) NOT NULL,
     Japanese varchar(50) NOT NULL,
     Japanese_Romanized varchar(50) NOT NULL,
@@ -168,36 +171,30 @@ DROP TABLE user_peppers;`
     Mandarin varchar(50) NOT NULL,
     Mandarin_Romanized varchar(50) NOT NULL,
     Category varchar(50) NOT NULL
-);`
+);
 
 \COPY vocablist FROM 'vocablist.csv' DELIMITER ',' CSV HEADER;
 
+CREATE TABLE language_data (
+    id SERIAL PRIMARY KEY,
+    english_text TEXT NOT NULL,
+    japanese_text TEXT NOT NULL,
+    japanese_broken_down JSONB NOT NULL
+);
+
 DROP TABLE vocablist;
+```
 
-# TO DO:
+# CURRENT TO DO:
 
-- Make tracing the base router, move the router to a different function/file
+Figure out a better way to retrieve the word list. Must consider if its better to create seperate routes for each language or try create a general route for all.
 
+```SQL
 SELECT english,
-CASE
-WHEN 'japanese' = 'japanese' THEN japanese
-WHEN 'japanese' = 'korean' THEN korean
-WHEN 'japanese' = 'mandarin' THEN mandarin
-END AS foreign
-FROM vocablist WHERE category = 'Nature';
-
-SELECT english,
-CASE
-WHEN 'korean' = 'japanese' THEN japanese
-WHEN 'korean' = 'korean' THEN korean
-WHEN 'korean' = 'mandarin' THEN mandarin
-END AS foreign
-FROM vocablist WHERE category = 'Nature';
-
-SELECT english,
-CASE
-WHEN 'mandarin' = 'japanese' THEN japanese
-WHEN 'mandarin' = 'korean' THEN korean
-WHEN 'mandarin' = 'mandarin' THEN mandarin
-END AS foreign
-FROM vocablist WHERE category = 'Nature';
+    CASE
+        WHEN $1 = 'japanese' THEN japanese
+        WHEN $1 = 'korean' THEN korean
+        WHEN $1 = 'mandarin' THEN mandarin
+    END AS foreign
+FROM vocablist WHERE category = $2;
+```
