@@ -1,5 +1,10 @@
-// REDO THIS ENTIRE FUNCTION
-use axum::{extract::State, http::StatusCode, Json};
+// I think it is better to redo the database storing words and translation
+// so that this can be written easier.
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    Json,
+};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -7,52 +12,34 @@ use crate::api::AppState;
 
 #[derive(Deserialize)]
 pub struct LanguageOptions {
-    language: String,
     category: String,
 }
 
-#[derive(Serialize)]
-struct WordList {
+#[derive(Default, Serialize, sqlx::FromRow)]
+#[sqlx(default)]
+struct HelpMe {
     english: String,
-    foreign: String,
-    foreign_romanized: String,
+    japanese: Option<String>,
+    japanese_romanized: Option<String>,
+    korean: Option<String>,
+    korean_romanized: Option<String>,
+    mandarin: Option<String>,
+    mandarin_romanized: Option<String>,
 }
 
 pub async fn word_list(
     State(pool): State<Arc<AppState>>,
+    Path(language): Path<String>,
     Json(payload): Json<LanguageOptions>,
 ) -> Result<String, (StatusCode, String)> {
+    let category = payload.category;
+    let query = format!(
+        "SELECT english, {language}, {language}_romanized FROM vocablist WHERE category = '{category}';" // "SELECT english, {language}, {language}_romanized FROM vocablist WHERE category = 'Family';"
+    );
 
-    let query_result = match payload.language.as_str() {
-        "japanese" => {
-            sqlx::query_as!(
-                WordList,   
-                "SELECT english, japanese AS foreign, japanese_romanized AS foreign_romanized FROM vocablist WHERE category = $1",
-                payload.category
-            )
-            .fetch_all(&pool.connection_pool)
-            .await
-        }
-        "korean" => {
-            sqlx::query_as!(
-                WordList,
-                "SELECT english, korean AS foreign, korean_romanized AS foreign_romanized FROM vocablist WHERE category = $1",
-                payload.category
-            )
-            .fetch_all(&pool.connection_pool)
-            .await
-        }
-        "mandarin" => {
-            sqlx::query_as!(
-                WordList,
-                "SELECT english, mandarin AS foreign, mandarin_romanized AS foreign_romanized FROM vocablist WHERE category = $1",
-                payload.category
-            )
-            .fetch_all(&pool.connection_pool)
-            .await
-        }
-        _ => return Err((StatusCode::INTERNAL_SERVER_ERROR, "helo".to_string())),
-    };
+    let query_result = sqlx::query_as::<_, HelpMe>(&query)
+        .fetch_all(&pool.connection_pool)
+        .await;
 
     let json_result = match query_result {
         Ok(result) => serde_json::to_string_pretty(&result),

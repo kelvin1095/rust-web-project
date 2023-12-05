@@ -122,9 +122,12 @@ localhost:3000/api/product \
 -d '{"num1": "22", "num2": "33"}'
 
 curl -X POST -i \
-localhost:3000/api/wordlist \
+localhost:3000/api/japanese/wordlist \
 -H 'Content-Type: application/json' \
--d '{"language": "japanese", "category": "Location"}'
+-d '{"category": "Location"}'
+
+curl -X GET -i \
+localhost:3000/api/japanese/sentence
 ```
 
 ### Creating tables for user log in information

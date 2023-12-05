@@ -81,14 +81,27 @@
 </p>
 
 <p>
-  For getting the site up and running, I think I will need to skip teaching how
-  to read katakana, hiragana and hangul
+  For getting the site up and running, I think I will need to skip how to read
+  katakana, hiragana and hangul
 </p>
 
 <h2 id="greeting-type">
   <span id="greetings">{greeting_display}</span>
   <span id="caret">&nbsp;</span>
 </h2>
+
+<p>
+  The current idea is to request a learning session where the backend generates
+  10 questions along with some session id. Answering each question will send a
+  post request and a message saying correct or incorrect will be returned. After
+  answering the last question, this will 'close' off the learning session.
+</p>
+
+<p>
+  The exact method of how to track which was correct/incorrect still needs to be
+  figured out later. Will need to track on an individual level so maybe will
+  need a table per user.
+</p>
 
 <ul>
   <li>greetings/introduction/farewells</li>

@@ -64,7 +64,6 @@
         body: JSON.stringify(formData),
       });
 
-      // Handle the response as needed
       const data: Pokemon[] = await response.json();
       result = data;
     } catch (error) {

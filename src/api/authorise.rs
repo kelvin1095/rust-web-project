@@ -9,12 +9,11 @@ use axum_extra::{
     TypedHeader,
 };
 use chrono::{Duration, Utc};
-use dotenv::dotenv;
 use jsonwebtoken::{encode, EncodingKey, Header};
-use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
+use crate::api::jwt_claims::Claims;
 use crate::api::AppState;
 
 #[derive(Serialize)]
@@ -29,20 +28,6 @@ pub struct UserDetails {
     pepper_value: String,
     hashed_password: String,
 }
-
-#[derive(Serialize, Deserialize)]
-struct Claims {
-    sub: String,
-    name: String,
-    iat: i64,
-    exp: i64,
-}
-
-static SECRET_KEY: Lazy<String> = Lazy::new(|| {
-    dotenv().ok();
-    let secret = std::env::var("JWT_SECRET_KEY").expect("missing secret key");
-    return secret;
-});
 
 pub async fn authorize(
     State(pool): State<Arc<AppState>>,
@@ -74,25 +59,24 @@ pub async fn authorize(
     };
 
     let now = Utc::now();
-    let iat = now.timestamp();
-    let exp = (now + Duration::weeks(1)).timestamp();
 
-    let test_user = Claims {
+    let user_claim = Claims {
         sub: result.user_id.to_string(),
         name: credential.username().to_string(),
-        iat: iat,
-        exp: exp,
+        iat: now.timestamp(),
+        exp: (now + Duration::weeks(1)).timestamp(),
     };
 
     let token = encode(
         &Header::default(),
-        &test_user,
-        &EncodingKey::from_secret(SECRET_KEY.as_bytes()),
+        &user_claim,
+        &EncodingKey::from_secret(pool.jwt_secret.as_bytes()),
     )
     .unwrap();
 
-    let token_header =
-        "auth-token=".to_owned() + &token + "; Max-Age=86400; Path=/; Secure; SameSite=Strict";
+    let token_header = "auth-token=".to_owned()
+        + &token
+        + "; Max-Age=86400; Path=/; HttpOnly; Secure; SameSite=Strict";
 
     let mut headers = HeaderMap::new();
     headers.insert(SET_COOKIE, token_header.as_str().parse().unwrap());

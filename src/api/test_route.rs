@@ -1,23 +1,12 @@
-use axum::{
-    http::{HeaderMap, StatusCode},
-    Json,
-};
-use axum_extra::{
-    headers::{authorization::Bearer, Authorization},
-    TypedHeader,
-};
-use dotenv::dotenv;
-use jsonwebtoken::{decode, DecodingKey, Validation};
-use once_cell::sync::Lazy;
+use axum::{extract::State, http::StatusCode, Json};
+use axum_extra::{headers::Cookie, TypedHeader};
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
+// use std::time::Duration;
+// use tokio::time::sleep;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Claims {
-    sub: String,
-    name: String,
-    iat: i64,
-    exp: i64,
-}
+use crate::api::check_jwt::is_authorised;
+use crate::api::AppState;
 
 #[derive(Deserialize)]
 pub struct Summation {
@@ -31,38 +20,15 @@ struct Total {
     method: String,
 }
 
-static SECRET_KEY: Lazy<String> = Lazy::new(|| {
-    dotenv().ok();
-    let secret = std::env::var("JWT_SECRET_KEY").expect("missing secret key");
-    return secret;
-});
-
-fn is_authorised(
-    auth_token: TypedHeader<Authorization<Bearer>>,
-) -> Result<(), (StatusCode, String)> {
-    let token = auth_token.token();
-
-    let token_message = decode::<Claims>(
-        &token,
-        &DecodingKey::from_secret(SECRET_KEY.as_bytes()),
-        &Validation::default(),
-    );
-
-    let _ = match token_message {
-        Ok(result) => result,
-        Err(err) => return Err((StatusCode::UNAUTHORIZED, err.to_string())),
-    };
-
-    return Ok(());
-}
-
 pub async fn list_things(
-    auth_token: TypedHeader<Authorization<Bearer>>,
-    headers: HeaderMap,
+    State(pool): State<Arc<AppState>>,
+    cookie: TypedHeader<Cookie>,
     Json(payload): Json<Summation>,
 ) -> Result<String, (StatusCode, String)> {
-    println!("{:?}", headers);
-    let _ = is_authorised(auth_token)?;
+    // let help = sleep(Duration::from_secs(5)).await;
+
+    let auth_token = cookie.get("auth-token").unwrap();
+    let _ = is_authorised(&pool.jwt_secret, auth_token)?;
 
     let num1_parsed = match payload.num1.parse::<f32>() {
         Ok(result) => result,

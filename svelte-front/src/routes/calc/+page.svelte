@@ -4,14 +4,6 @@
   let num1 = "";
   let num2 = "";
 
-  function getJwtFromCookie() {
-    const cookieValue = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("auth-token"))
-      ?.split("=")[1];
-    return cookieValue || null;
-  }
-
   const handleSubmit = async (event: Event) => {
     event.preventDefault();
     const formData = {
@@ -19,23 +11,16 @@
       num2: num2,
     };
 
-    let jwt = getJwtFromCookie();
-    console.log(jwt);
-    console.log(JSON.stringify(formData));
-
     try {
       const response = await fetch("/api/sum", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${jwt}`,
         },
         body: JSON.stringify(formData),
       });
 
-      // Handle the response as needed
       const data = await response.json();
-      console.log("API Response:", data);
       result = data.total;
     } catch (error) {
       console.error("Error:", error);

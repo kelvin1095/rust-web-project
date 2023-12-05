@@ -3,17 +3,15 @@ use axum::{
     http::{header, HeaderValue},
     Router,
 };
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use sqlx::postgres::PgPoolOptions;
 use tower::ServiceBuilder;
 use tower_http::{set_header::SetResponseHeaderLayer, timeout::TimeoutLayer, trace::TraceLayer};
 use tracing::Level;
 
-use std::env;
-use std::time::Duration;
+use std::{env, time::Duration};
 
 mod api;
-
 mod static_files;
 use crate::static_files::serve_static_files;
 
@@ -29,12 +27,12 @@ async fn main() {
         .with_max_level(Level::DEBUG)
         .init();
 
-    let database_url: String = env::var("DATABASE_URL").expect("missing database url");
+    let database_url = env::var("DATABASE_URL").expect("missing database url");
 
     let pool = PgPoolOptions::new()
         .min_connections(2)
         .max_connections(5)
-        .acquire_timeout(Duration::from_secs(5))
+        .acquire_timeout(Duration::from_secs(30))
         .connect(&database_url)
         .await
         .expect("Unable to connect to the database");
@@ -49,7 +47,7 @@ async fn main() {
             HeaderValue::from_static("nosniff"),
         ))
         .layer(TraceLayer::new_for_http())
-        .layer(TimeoutLayer::new(Duration::from_secs(30)));
+        .layer(TimeoutLayer::new(Duration::from_secs(2)));
 
     let app = Router::new()
         .merge(api_routes(pool))
