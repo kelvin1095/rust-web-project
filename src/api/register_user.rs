@@ -49,7 +49,7 @@ pub async fn new_user(
 
     let _ = match insert_new_user {
         Ok(_) => (),
-        Err(err) => return Err((StatusCode::UNAUTHORIZED, err.to_string())),
+        Err(err) => return Err((StatusCode::BAD_REQUEST, err.to_string())),
     };
 
     return Ok(());

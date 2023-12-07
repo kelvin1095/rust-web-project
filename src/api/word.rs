@@ -15,16 +15,11 @@ pub struct LanguageOptions {
     category: String,
 }
 
-#[derive(Default, Serialize, sqlx::FromRow)]
-#[sqlx(default)]
+#[derive(Serialize, sqlx::FromRow)]
 struct HelpMe {
     english: String,
-    japanese: Option<String>,
-    japanese_romanized: Option<String>,
-    korean: Option<String>,
-    korean_romanized: Option<String>,
-    mandarin: Option<String>,
-    mandarin_romanized: Option<String>,
+    translated: String,
+    romanized: String,
 }
 
 pub async fn word_list(
@@ -32,14 +27,16 @@ pub async fn word_list(
     Path(language): Path<String>,
     Json(payload): Json<LanguageOptions>,
 ) -> Result<String, (StatusCode, String)> {
-    let category = payload.category;
-    let query = format!(
-        "SELECT english, {language}, {language}_romanized FROM vocablist WHERE category = '{category}';" // "SELECT english, {language}, {language}_romanized FROM vocablist WHERE category = 'Family';"
-    );
-
-    let query_result = sqlx::query_as::<_, HelpMe>(&query)
-        .fetch_all(&pool.connection_pool)
-        .await;
+    println!("{language}");
+    println!("{:?}", payload.category);
+    let query_result = sqlx::query_as!(
+        HelpMe, 
+        "SELECT english, translated, romanized FROM word_data WHERE language = $1 AND category = $2",
+        language,
+        payload.category
+    )
+    .fetch_all(&pool.connection_pool)
+    .await;
 
     let json_result = match query_result {
         Ok(result) => serde_json::to_string_pretty(&result),

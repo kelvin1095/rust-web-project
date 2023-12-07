@@ -1,63 +1,64 @@
 # Learning project
 
-This project is to build a webapp using svelte as the frontend and rust as the backend. My goal is to build a basic language learning app.
+This project is to build a webapp. My goal is to learn by building a language learning app. The current focus is on Japanese, Korean and Mandarin.
 
-For my frontend, I'm using svelte with typescript.
-For my backend, I'm using rust.
+I am using Svelte with typescript to build out the webpage. My backend is written using rust. I'm using postgresql as my database.
 
 ## Quiz Question Types
 
-- Show an english word with possible answers in a different language
-- Show a different language word with possible answers in english
-- Mix and match, 5 english words and 5 foreign language words
-- Show a sentance in english and get the user to put words together
-- Show a sentance in foreign language and get the user to put words together
+- Show an english word with possible answers in a different language.
+- Show a different language word with possible answers in english.
+- Mix and match, 5 english words and 5 foreign language words.
+- Show a sentence in english and get the user to put words together.
+- Show a sentence in foreign language and get the user to put words together.
+- Show a sentence and ask the correct form of the word in that situation (probably more specific to japanese and korean).
+- Having stories would also be excellent.
 
 ## To Do
 
 ### Backend:
 
 - Refactor/organise code (Never ending).
-- Proper Error handling (Never ending).
-- User Authentication.
-  - Should change registration process from account_status active by default to unverified and send out email to change to active.
-  - The JWT secret key should be randomised.
-  - The table storing user peppers is likely better off in a key value database.
+- Better Error handling (Never ending).
+- User Registration/Authentication:
   - Need to deal with the case where if JWT is expired, what does the frontend do.
-- Need to figure out a way to deliver the actual language part to the user.
-  - I want to be able to capture relationship between presented word and submitted choice too.
-  - Also need to figure out how to track progress per user.
-- I want to be implement OAuth as well so people can sign in via google, microsfot, facebook or apple.
+  - The table storing user peppers should be in a different database.
+  - Change registration process from account_status active by default to unverified and send out email to change to active.
+  - Page should redirect with a success message.
+  - Reason for registration failing would be good: username already registered, email already registered or password does not match. Should be able to grab from response message or client side validation.
+- Need to figure out a way to deliver content to the user.
+  - I have a test example of a mixed vector being sent from the back to the front. Will need to figure out how to generate quizzes in the backend. Refer to the above on how to pass this information to the user.
+  - I want to be able to capture relationship between presented word and submitted choice too. Definitely a want for words, but still deciding on sentances.
+  - Also need to figure out a way to store data that tracks user progress.
+- I want to be implement OAuth as well so people can sign in via google, microsoft, facebook or apple.
 
 ### Frontend:
 
 - Better Design (Never ending).
-- Types of quizzes:
-  - A constant stream of mix and match.
-  - Typical quizz with 4 choices.
-  - A sentence building exercise.
+- Displaying the quiz after receiving data from the backend:
+  - A game of mix and match. 5 seems like a good number.
+  - Multiple choice with 4 options.
+  - Build sentences using provided blocks.
 
 ### Database:
 
-- Probably need to have more roles.
 - Still thinking of how to set user progress tracking.
-- I want to use enums
+- Test to see if using enums will make performance much better.
 
 ### Security:
 
 - Input validation, need to implement validation to remove spaces.
-- Set JWT to httpOnly and map the cookie to the authorization header instead of setting it at the frontend.
 
 ### Infrastructure:
 
-- Looking for a place to host my app. Currently considering AWS
+- Looking for a place to host my app. Currently considering AWS but AWS is expensive.
 
 ## Potential future plans
 
-- Use openai in some capacity to be able to mark more open ended assignments (such as introduce yourself or what did you do on the weekend).
-- Unique avatars
-- Being able to comment on verified sentences/words (probably would need some moderating system)
-- Translating competitions
+- Would be nice to have each foreign word be associated with an image as well as audio of how to pronounce the word.
+- Use openai in some capacity to be able to mark more open ended assignments (such as introduce yourself or what did you do on the weekend). Capturing this data to use to train home made model would be nice.
+- Being able to comment on verified sentences/words (probably would need some moderating system).
+- Translation competitions.
 
 # Important commands
 
@@ -69,9 +70,10 @@ cargo run --manifest-path rust-back/Cargo.toml
 ```
 
 <!--
+```SQL
 DROP TABLE pokemon;
 
-CREATE TYPE pokemon_type AS ENUM ('Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying',  'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy');
+CREATE TYPE pokemon_type AS ENUM ('Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy');
 
 view enums in the pg_enum table.
 
@@ -96,6 +98,7 @@ CREATE TABLE pokemon (
   );
 
 \COPY pokemon FROM 'PokemonStats.csv' WITH (FORMAT csv, HEADER true);
+```
 -->
 
 Accessing postgres from the terminal:
@@ -122,9 +125,19 @@ localhost:3000/api/product \
 -d '{"num1": "22", "num2": "33"}'
 
 curl -X POST -i \
-localhost:3000/api/japanese/wordlist \
+localhost:3000/api/japanese/word \
 -H 'Content-Type: application/json' \
--d '{"category": "Location"}'
+-d '{"category": "nature"}'
+
+curl -X POST -i \
+localhost:3000/api/korean/word \
+-H 'Content-Type: application/json' \
+-d '{"category": "nature"}'
+
+curl -X POST -i \
+localhost:3000/api/mandarin/word \
+-H 'Content-Type: application/json' \
+-d '{"category": "nature"}'
 
 curl -X GET -i \
 localhost:3000/api/japanese/sentence
@@ -139,13 +152,15 @@ I think there should be another table for things you can change frequently such 
 - preferred name
 - profile picture?
 
-I'm storing the salt in the hashed_password column as phc format. The peppers should be stored in a different database
+I'm storing the salt in the hashed_password column as phc format. The peppers should be stored in a different database.
+
+It may also be a good idea to create a table that keep tracks of when a jwt was created and which user.
 
 ```SQL
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
-    username VARCHAR(20) UNIQUE NOT NULL,
-    email VARCHAR(50) UNIQUE NOT NULL,
+    username VARCHAR(20) UNIQUE NOT NULL CHECK (length(username) > 0) AND length(username) < 20),
+    email VARCHAR(30) UNIQUE NOT NULL CHECK (length(email) > 0 AND length(email) < 30 AND position('@' IN email) > 0),
     hashed_password VARCHAR(100) NOT NULL,
     date_registered TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_changed_password TIMESTAMP,
@@ -164,40 +179,51 @@ DROP TABLE user_peppers;
 
 ### Creating a vocab list table
 
+I'm not sure about the category field. It may need to be changed to allow multiple categories in the future. I'm also thinking there might need to be another column to correspond with where user is up to in their learning path.
+
 ```SQL
-CREATE TABLE vocablist (
-    English varchar(50) NOT NULL,
-    Japanese varchar(50) NOT NULL,
-    Japanese_Romanized varchar(50) NOT NULL,
-    Korean varchar(50) NOT NULL,
-    Korean_Romanized varchar(50) NOT NULL,
-    Mandarin varchar(50) NOT NULL,
-    Mandarin_Romanized varchar(50) NOT NULL,
-    Category varchar(50) NOT NULL
+CREATE TABLE word_data (
+    id SERIAL PRIMARY KEY,
+    english VARCHAR(20) NOT NULL,
+    translated VARCHAR(20) NOT NULL,
+    romanized VARCHAR(20) NOT NULL,
+    language VARCHAR(20) NOT NULL,
+    category VARCHAR(20) NOT NULL
 );
 
-\COPY vocablist FROM 'vocablist.csv' DELIMITER ',' CSV HEADER;
+\COPY word_data(english, translated, romanized, language, category) FROM 'word_list.csv' DELIMITER ',' CSV HEADER;
 
-CREATE TABLE language_data (
+CREATE TABLE sentence_data (
     id SERIAL PRIMARY KEY,
     english_text TEXT NOT NULL,
-    japanese_text TEXT NOT NULL,
-    japanese_broken_down JSONB NOT NULL
+    translated_text TEXT NOT NULL,
+    broken_down JSONB NOT NULL,
+    language VARCHAR(20) NOT NULL
 );
 
-DROP TABLE vocablist;
+\COPY sentence_data(english_text, translated_text, broken_down, language) FROM 'help.csv' DELIMITER ',' CSV;
+
+DROP TABLE word_data;
+DROP TABLE sentence_data;
+
+-- Potentially useful for query something inside a JSONB column:
+SELECT * FROM sentence_data WHERE broken_down @> '"は"';
 ```
 
 # CURRENT TO DO:
 
-Figure out a better way to retrieve the word list. Must consider if its better to create seperate routes for each language or try create a general route for all.
+I think the better way to do this is to reduce the number of columns: id, english, foreign, foreign_romanized, language, category.
 
 ```SQL
-SELECT english,
-    CASE
-        WHEN $1 = 'japanese' THEN japanese
-        WHEN $1 = 'korean' THEN korean
-        WHEN $1 = 'mandarin' THEN mandarin
-    END AS foreign
-FROM vocablist WHERE category = $2;
+SELECT
+    english,
+    translation,
+    romanized
+FROM
+    vocab_list
+WHERE
+    language = $1
+    AND category = $2;
+
+\COPY (SELECT * FROM language_data) TO '/home/kwong/sentence_data.csv' WITH CSV HEADER;
 ```

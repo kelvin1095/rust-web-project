@@ -27,8 +27,12 @@ pub async fn list_things(
 ) -> Result<String, (StatusCode, String)> {
     // let help = sleep(Duration::from_secs(5)).await;
 
-    let auth_token = cookie.get("auth-token").unwrap();
-    let _ = is_authorised(&pool.jwt_secret, auth_token)?;
+    let auth_token = cookie.get("auth-token");
+
+    match auth_token {
+        Some(token) => is_authorised(&pool.jwt_secret, token)?,
+        None => return Err((StatusCode::UNAUTHORIZED, "Please Log in".to_string())),
+    };
 
     let num1_parsed = match payload.num1.parse::<f32>() {
         Ok(result) => result,

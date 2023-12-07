@@ -1,4 +1,7 @@
-use axum::{extract::State, http::StatusCode};
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+};
 use serde::Serialize;
 use std::sync::Arc;
 
@@ -7,16 +10,24 @@ use crate::api::AppState;
 #[derive(Serialize)]
 struct Sentence {
     english_text: String,
-    japanese_text: String,
-    japanese_broken_down: serde_json::Value,
+    translated_text: String,
+    broken_down: serde_json::Value,
 }
 
-pub async fn sentence(State(pool): State<Arc<AppState>>) -> Result<String, (StatusCode, String)> {
+pub async fn sentence_list(
+    State(pool): State<Arc<AppState>>,
+    Path(language): Path<String>,
+) -> Result<String, (StatusCode, String)> {
     let query_result = sqlx::query_as!(
         Sentence,
-        "SELECT english_text, japanese_text, japanese_broken_down FROM language_data WHERE id = 1;",
+        "SELECT english_text, translated_text, broken_down 
+        FROM sentence_data 
+        WHERE language = $1
+        ORDER BY RANDOM()
+        LIMIT 5;",
+        language
     )
-    .fetch_one(&pool.connection_pool)
+    .fetch_all(&pool.connection_pool)
     .await;
 
     let json_result = match query_result {

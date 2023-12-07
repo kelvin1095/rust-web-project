@@ -20,7 +20,11 @@
   </h1>
 
   <div class="image">
-    <img src="/PokemonHome/{pokemon.pokemon_image}" alt={pokemon.name} />
+    <img
+      src="/image/PokemonHome/{pokemon.pokemon_image}"
+      alt={pokemon.name}
+      height="512"
+    />
   </div>
 
   <div class="form-button-group">

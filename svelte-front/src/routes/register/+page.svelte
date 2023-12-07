@@ -1,14 +1,15 @@
 <script lang="ts">
-  type NewUser = {
+  interface NewUser {
     username: string;
     email: string;
     password: string;
-  };
+  }
 
   let id = "";
   let password = "";
   let passwordRepeat = "";
   let email = "";
+  let registration = "";
 
   const handleSubmit = async () => {
     // const minLength = 8;
@@ -69,8 +70,10 @@
       if (!response.ok) {
         throw new Error("ERROR");
       }
+      registration = "Successfully registered";
     } catch (error) {
       console.error("Error: ", error);
+      registration = "registration failed";
     }
   };
 </script>
@@ -106,6 +109,13 @@
 
 <p id="register-options">
   Already have an account? <a href="/login">Login Here</a>
+</p>
+
+<p>{registration}</p>
+
+<p>
+  Will need to do something about why registration failed, either username or
+  email already exist.
 </p>
 
 <style>

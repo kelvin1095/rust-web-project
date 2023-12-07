@@ -21,7 +21,7 @@ async fn main() {
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
         .await
-        .unwrap();
+        .expect("Address already in use");
 
     tracing_subscriber::fmt()
         .with_max_level(Level::DEBUG)

@@ -6,9 +6,25 @@
   export let data: PageData;
   const username = data.username;
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      const response = await fetch("/api/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `HTTP ${response.status} error! Status: ${await response.text()}`
+        );
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+
     localStorage.removeItem("username");
-    document.cookie = `auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     login_status_store.set(false);
     goto("/");
   };
@@ -17,7 +33,7 @@
 <h1>Welcome {username}!</h1>
 
 <p>
-  The plan for this page is to show an overview of each langauge learning
+  The plan for this page is to show an overview of each language learning
   progress. In addition, there will be some kind of settings page for each user
   as well.
 </p>

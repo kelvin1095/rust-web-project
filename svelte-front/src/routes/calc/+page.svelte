@@ -20,11 +20,15 @@
         body: JSON.stringify(formData),
       });
 
+      if (!response.ok) {
+        throw new Error(`Error: ${await response.text()}`);
+      }
+
       const data = await response.json();
       result = data.total;
     } catch (error) {
       console.error("Error:", error);
-      result = "error";
+      result = (error as Error).message;
     }
   };
 </script>
@@ -35,10 +39,10 @@
 
 <h1>Login Calculator Test Page</h1>
 <p>
-  This page is to test out logging in with authorization headers and JWTs. If
-  you are not logged in, then you will see an error returned. If you are logged
-  in, the sum of the two numbers will be returned. Of course, if you enter
-  anything that isn't a number, you will see an error
+  This page is to test out logging in with authorization headers and JWT. If you
+  are not logged in, then you will see an error returned. If you are logged in,
+  the sum of the two numbers will be returned. Of course, if you enter anything
+  that isn't a number, you will see an error
 </p>
 
 <h2>Adding two numbers with post requests</h2>
