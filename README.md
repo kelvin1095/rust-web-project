@@ -4,61 +4,63 @@ This project is to build a webapp. My goal is to learn by building a language le
 
 I am using Svelte with typescript to build out the webpage. My backend is written using rust. I'm using postgresql as my database.
 
+I will need to create a few more tables. Firstly will be a table to keep track of user progress.
+
 ## Quiz Question Types
 
-- Show an english word with possible answers in a different language.
-- Show a different language word with possible answers in english.
-- Mix and match, 5 english words and 5 foreign language words.
-- Show a sentence in english and get the user to put words together.
-- Show a sentence in foreign language and get the user to put words together.
-- Show a sentence and ask the correct form of the word in that situation (probably more specific to japanese and korean).
-- Having stories would also be excellent.
+-   Show an english word with possible answers in a different language.
+-   Show a different language word with possible answers in english.
+-   Mix and match, 5 english words and 5 foreign language words.
+-   Show a sentence in english and get the user to put words together.
+-   Show a sentence in foreign language and get the user to put words together.
+-   Show a sentence and ask the correct form of the word in that situation (probably more specific to japanese and korean).
+-   Having stories would also be excellent.
 
 ## To Do
 
 ### Backend:
 
-- Refactor/organise code (Never ending).
-- Better Error handling (Never ending).
-- User Registration/Authentication:
-  - Need to deal with the case where if JWT is expired, what does the frontend do.
-  - The table storing user peppers should be in a different database.
-  - Change registration process from account_status active by default to unverified and send out email to change to active.
-  - Page should redirect with a success message.
-  - Reason for registration failing would be good: username already registered, email already registered or password does not match. Should be able to grab from response message or client side validation.
-- Need to figure out a way to deliver content to the user.
-  - I have a test example of a mixed vector being sent from the back to the front. Will need to figure out how to generate quizzes in the backend. Refer to the above on how to pass this information to the user.
-  - I want to be able to capture relationship between presented word and submitted choice too. Definitely a want for words, but still deciding on sentances.
-  - Also need to figure out a way to store data that tracks user progress.
-- I want to be implement OAuth as well so people can sign in via google, microsoft, facebook or apple.
+-   Refactor/organise code (Never ending).
+-   Better Error handling (Never ending).
+-   User Registration/Authentication:
+    -   Need to deal with the case where if JWT is expired, what does the frontend do.
+    -   The table storing user peppers should be in a different database.
+    -   Change registration process from account_status active by default to unverified and send out email to change to active.
+    -   Page should redirect with a success message.
+    -   Reason for registration failing would be good: username already registered, email already registered or password does not match. Should be able to grab from response message or client side validation.
+-   Need to figure out a way to deliver content to the user.
+    -   I have a test example of a mixed vector being sent from the back to the front. Will need to figure out how to generate quizzes in the backend. Refer to the above on how to pass this information to the user.
+    -   I want to be able to capture relationship between presented word and submitted choice too. Definitely a want for words, but still deciding on sentances.
+    -   Also need to figure out a way to store data that tracks user progress.
+-   I want to be implement OAuth as well so people can sign in via google, microsoft, facebook or apple.
 
 ### Frontend:
 
-- Better Design (Never ending).
-- Displaying the quiz after receiving data from the backend:
-  - A game of mix and match. 5 seems like a good number.
-  - Multiple choice with 4 options.
-  - Build sentences using provided blocks.
+-   Better Design (Never ending).
+-   Displaying the quiz after receiving data from the backend:
+    -   A game of mix and match. 5 seems like a good number.
+    -   Multiple choice with 4 options.
+    -   Build sentences using provided blocks.
 
 ### Database:
 
-- Still thinking of how to set user progress tracking.
-- Test to see if using enums will make performance much better.
+-   Still thinking of how to set user progress tracking.
+-   Test to see if using enums will make performance much better.
 
 ### Security:
 
-- Input validation, need to implement validation to remove spaces.
+-   Input validation, need to implement validation to remove spaces.
 
 ### Infrastructure:
 
-- Looking for a place to host my app. Currently considering AWS but AWS is expensive.
+-   Looking for a place to host my app. Currently considering AWS but AWS is expensive.
 
 ## Potential future plans
 
-- Would be nice to have each foreign word be associated with an image as well as audio of how to pronounce the word.
-- Use openai in some capacity to be able to mark more open ended assignments (such as introduce yourself or what did you do on the weekend). Capturing this data to use to train home made model would be nice.
-- Being able to comment on verified sentences/words (probably would need some moderating system).
-- Translation competitions.
+-   Would be nice to have each foreign word be associated with an image as well as audio of how to pronounce the word.
+-   Use openai in some capacity to be able to mark more open ended assignments (such as introduce yourself or what did you do on the weekend). Capturing this data to use to train home made model would be nice.
+-   Being able to comment on verified sentences/words (probably would need some moderating system).
+-   Translation competitions.
 
 # Important commands
 
@@ -120,8 +122,14 @@ localhost:3000/api/register \
 -d '{"username": "admin", "name": "admin", "email": "example@email.com", "password":"password"}'
 
 curl -X POST -i \
-localhost:3000/api/product \
+localhost:3000/api/sum \
 -H 'Content-Type: application/json' \
+-d '{"num1": "22", "num2": "33"}'
+
+curl -X POST -i \
+localhost:3000/api/sum \
+-H 'Content-Type: application/json' \
+-H 'Cookie: auth-token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwibmFtZSI6ImFkbWluIiwiaWF0IjoxNzAyMDY3OTM0LCJleHAiOjIwMDAwMDAwMDB9.MGNATq2XT5AZXWDvQMdSfaKAYtMMQhVfTTyIdFyBAmE' \
 -d '{"num1": "22", "num2": "33"}'
 
 curl -X POST -i \
@@ -147,10 +155,10 @@ localhost:3000/api/japanese/sentence
 
 I think there should be another table for things you can change frequently such as:
 
-- username
-- email
-- preferred name
-- profile picture?
+-   username
+-   email
+-   preferred name
+-   profile picture?
 
 I'm storing the salt in the hashed_password column as phc format. The peppers should be stored in a different database.
 
@@ -159,8 +167,8 @@ It may also be a good idea to create a table that keep tracks of when a jwt was 
 ```SQL
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
-    username VARCHAR(20) UNIQUE NOT NULL CHECK (length(username) > 0) AND length(username) < 20),
-    email VARCHAR(30) UNIQUE NOT NULL CHECK (length(email) > 0 AND length(email) < 30 AND position('@' IN email) > 0),
+    username VARCHAR(20) UNIQUE NOT NULL CHECK (LENGTH(username) > 0 AND LENGTH(username) < 20),
+    email VARCHAR(30) UNIQUE NOT NULL CHECK (LENGTH(email) > 0 AND LENGTH(email) < 30 AND POSITION('@' IN email) > 0),
     hashed_password VARCHAR(100) NOT NULL,
     date_registered TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_changed_password TIMESTAMP,
@@ -173,8 +181,8 @@ CREATE TABLE user_peppers (
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
-DROP TABLE users;
 DROP TABLE user_peppers;
+DROP TABLE users;
 ```
 
 ### Creating a vocab list table
@@ -210,20 +218,14 @@ DROP TABLE sentence_data;
 SELECT * FROM sentence_data WHERE broken_down @> '"は"';
 ```
 
-# CURRENT TO DO:
+## Current to do
 
-I think the better way to do this is to reduce the number of columns: id, english, foreign, foreign_romanized, language, category.
+Change the responses to be of some form like
 
-```SQL
-SELECT
-    english,
-    translation,
-    romanized
-FROM
-    vocab_list
-WHERE
-    language = $1
-    AND category = $2;
-
-\COPY (SELECT * FROM language_data) TO '/home/kwong/sentence_data.csv' WITH CSV HEADER;
+```json
+{
+    "status": "success",
+    "message": "success",
+    "data": {}
+}
 ```

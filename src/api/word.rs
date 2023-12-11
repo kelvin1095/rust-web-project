@@ -16,7 +16,7 @@ pub struct LanguageOptions {
 }
 
 #[derive(Serialize, sqlx::FromRow)]
-struct HelpMe {
+struct WordList {
     english: String,
     translated: String,
     romanized: String,
@@ -27,11 +27,13 @@ pub async fn word_list(
     Path(language): Path<String>,
     Json(payload): Json<LanguageOptions>,
 ) -> Result<String, (StatusCode, String)> {
-    println!("{language}");
-    println!("{:?}", payload.category);
     let query_result = sqlx::query_as!(
-        HelpMe, 
-        "SELECT english, translated, romanized FROM word_data WHERE language = $1 AND category = $2",
+        WordList,
+        "SELECT english, translated, romanized FROM word_data
+        WHERE language = $1 
+        AND category = $2
+        ORDER BY RANDOM()
+        LIMIT 5;",
         language,
         payload.category
     )

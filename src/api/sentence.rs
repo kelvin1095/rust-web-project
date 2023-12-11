@@ -8,7 +8,7 @@ use std::sync::Arc;
 use crate::api::AppState;
 
 #[derive(Serialize)]
-struct Sentence {
+struct SentenceList {
     english_text: String,
     translated_text: String,
     broken_down: serde_json::Value,
@@ -19,7 +19,7 @@ pub async fn sentence_list(
     Path(language): Path<String>,
 ) -> Result<String, (StatusCode, String)> {
     let query_result = sqlx::query_as!(
-        Sentence,
+        SentenceList,
         "SELECT english_text, translated_text, broken_down 
         FROM sentence_data 
         WHERE language = $1

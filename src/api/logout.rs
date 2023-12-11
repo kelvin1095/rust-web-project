@@ -4,7 +4,7 @@ use axum::{
 };
 
 pub async fn logout() -> Result<impl IntoResponse, (StatusCode, String)> {
-    let token_header = "auth-token=; Max-Age=0";
+    let token_header = "auth-token=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=Strict";
 
     let mut headers = HeaderMap::new();
     headers.insert(SET_COOKIE, token_header.parse().unwrap());

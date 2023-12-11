@@ -1,13 +1,13 @@
 import { writable } from "svelte/store";
 
 export type Pokemon = {
-  pokedex_number: number;
-  name: string;
-  form?: string;
+    pokedex_number: number;
+    name: string;
+    form?: string;
 };
 
 export const login_status_store = writable(
-  localStorage.getItem("username") != null
+    localStorage.getItem("username") != null
 );
 
 export const type1_store = writable("");

@@ -1,0 +1,79 @@
+use std::sync::Arc;
+
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+};
+use rand::{seq::SliceRandom, thread_rng};
+use serde::Serialize;
+
+use crate::api::AppState;
+
+#[derive(Serialize)]
+struct WordList {
+    english: String,
+    translated: String,
+    romanized: String,
+}
+
+#[derive(Serialize)]
+struct SentenceList {
+    english_text: String,
+    translated_text: String,
+    broken_down: serde_json::Value,
+}
+
+#[derive(Serialize)]
+enum QuizType {
+    WordList(WordList),
+    SentenceList(SentenceList),
+}
+
+pub async fn quiz_list(
+    State(pool): State<Arc<AppState>>,
+    Path(language): Path<String>,
+) -> Result<String, (StatusCode, String)> {
+    let sentence_result = sqlx::query_as!(
+        SentenceList,
+        "SELECT english_text, translated_text, broken_down FROM sentence_data
+        WHERE language = $1 
+        ORDER BY RANDOM()
+        LIMIT 5;",
+        language,
+    )
+    .fetch_all(&pool.connection_pool)
+    .await
+    .unwrap();
+
+    let word_result = sqlx::query_as!(
+        WordList,
+        "SELECT english, translated, romanized FROM word_data
+        WHERE language = $1 
+        ORDER BY RANDOM()
+        LIMIT 5;",
+        language,
+    )
+    .fetch_all(&pool.connection_pool)
+    .await
+    .unwrap();
+
+    let mut sentence_result_quiz: Vec<QuizType> = Vec::new();
+
+    for word in word_result {
+        sentence_result_quiz.push(QuizType::WordList(word))
+    }
+
+    for sentence in sentence_result {
+        sentence_result_quiz.push(QuizType::SentenceList(sentence))
+    }
+
+    let mut rng = thread_rng();
+    sentence_result_quiz.shuffle(&mut rng);
+
+    let json_result = serde_json::to_string_pretty(&sentence_result_quiz);
+
+    return match json_result {
+        Ok(result) => Ok(result),
+        Err(err) => Err((StatusCode::INTERNAL_SERVER_ERROR, err.to_string())),
+    };
+}
