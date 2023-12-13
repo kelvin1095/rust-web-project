@@ -2,6 +2,18 @@
     import { goto } from "$app/navigation";
     import { login_status_store } from "../store";
 
+    type UserDetails = {
+        username: string;
+    };
+
+    type ApiResponseTemplate<T> = {
+        status: string;
+        message: string;
+        data: T;
+    };
+
+    type ApiResponse = ApiResponseTemplate<UserDetails>;
+
     let id = "";
     let password = "";
     let error_message = "";
@@ -17,20 +29,21 @@
             },
         })
             .then((response) => {
-                if (!response.ok) {
-                    return Promise.reject(response);
+                if (response.ok) {
+                    return response.json();
                 }
+                return response.json().then((errorData: ApiResponse) => {
+                    throw errorData;
+                });
             })
-            .then(() => {
+            .then((body: ApiResponse) => {
                 login_status_store.set(true);
-                localStorage.setItem("username", id);
+                localStorage.setItem("username", body.data.username);
                 goto("/");
             })
-            .catch((error) => {
+            .catch((error: ApiResponse) => {
                 console.error("Error:", error);
-                error.text().then((errorMessage: string) => {
-                    error_message = `Error: ${errorMessage}`;
-                });
+                error_message = `Error: ${error.message}`;
             });
     };
 </script>
@@ -43,7 +56,7 @@
 
 <form id="login-form" on:submit={handleSubmit}>
     <div id="input-fields">
-        <label for="id">Username:</label>
+        <label for="id">Username or Email:</label>
         <input id="id" name="id" bind:value={id} />
         <br />
 

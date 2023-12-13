@@ -1,7 +1,7 @@
 import type { PageLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 
-export const load: PageLoad = async ({ fetch, params }) => {
+export const load: PageLoad = async ({ params }) => {
     let username = localStorage.getItem("username");
 
     if (username != params.id) {

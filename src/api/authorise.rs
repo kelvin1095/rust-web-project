@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use argon2::{password_hash::PasswordVerifier, Algorithm, Argon2, Params, PasswordHash, Version};
 use axum::{
     extract::State,
@@ -11,36 +13,46 @@ use axum_extra::{
 use chrono::{Duration, Utc};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 
+use crate::api::api_response::ApiResponse;
 use crate::api::jwt_claims::Claims;
 use crate::api::AppState;
 
 #[derive(Serialize)]
-struct AuthBody {
-    token_type: String,
-    access_token: String,
+struct UserDetails {
+    username: String,
 }
 
 #[derive(Deserialize)]
-pub struct UserDetails {
+pub struct UserLoginDetails {
     user_id: i32,
+    username: String,
     pepper_value: String,
     hashed_password: String,
 }
+
+type T = UserDetails;
 
 pub async fn authorize(
     State(pool): State<Arc<AppState>>,
     credential: TypedHeader<Authorization<Basic>>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
-    let user_match =
-        sqlx::query_file_as!(UserDetails, "src/sql/matchUser.sql", credential.username())
-            .fetch_one(&pool.connection_pool)
-            .await;
+    let user_match = sqlx::query_file_as!(
+        UserLoginDetails,
+        "src/sql/matchUser.sql",
+        credential.username()
+    )
+    .fetch_one(&pool.connection_pool)
+    .await;
 
-    let result: UserDetails = match user_match {
+    let result = match user_match {
         Ok(result) => result,
-        Err(_) => return Err((StatusCode::UNAUTHORIZED, "User ID not found".to_string())),
+        Err(err) => {
+            return Err((
+                StatusCode::UNAUTHORIZED,
+                ApiResponse::<T>::error(err.to_string()),
+            ))
+        }
     };
 
     let check_password = PasswordHash::new(&result.hashed_password).unwrap();
@@ -55,7 +67,12 @@ pub async fn authorize(
 
     let _ = match config.verify_password(credential.password().as_bytes(), &check_password) {
         Ok(_) => (),
-        Err(err) => return Err((StatusCode::UNAUTHORIZED, err.to_string())),
+        Err(err) => {
+            return Err((
+                StatusCode::UNAUTHORIZED,
+                ApiResponse::<T>::error(err.to_string()),
+            ))
+        }
     };
 
     let now = Utc::now();
@@ -81,5 +98,9 @@ pub async fn authorize(
     let mut headers = HeaderMap::new();
     headers.insert(SET_COOKIE, token_header.as_str().parse().unwrap());
 
-    return Ok(headers);
+    let username = UserDetails {
+        username: result.username,
+    };
+
+    return Ok((headers, ApiResponse::<T>::success(username)));
 }

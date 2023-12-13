@@ -5,6 +5,7 @@ use std::sync::Arc;
 // use std::time::Duration;
 // use tokio::time::sleep;
 
+use crate::api::api_response::ApiResponse;
 use crate::api::check_jwt::is_authorised;
 use crate::api::AppState;
 
@@ -17,8 +18,9 @@ pub struct Summation {
 #[derive(Serialize)]
 struct Total {
     total: f32,
-    method: String,
 }
+
+type T = Total;
 
 pub async fn list_things(
     State(pool): State<Arc<AppState>>,
@@ -31,28 +33,37 @@ pub async fn list_things(
 
     match auth_token {
         Some(token) => is_authorised(&pool.jwt_secret, token)?,
-        None => return Err((StatusCode::UNAUTHORIZED, "Please Log in".to_string())),
+        None => {
+            return Err((
+                StatusCode::UNAUTHORIZED,
+                ApiResponse::<T>::error("Please Log in".to_string()),
+            ))
+        }
     };
 
     let num1_parsed = match payload.num1.parse::<f32>() {
         Ok(result) => result,
-        Err(err) => return Err((StatusCode::BAD_REQUEST, err.to_string())),
+        Err(err) => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                ApiResponse::<T>::error(err.to_string()),
+            ))
+        }
     };
 
     let num2_parsed = match payload.num2.parse::<f32>() {
         Ok(result) => result,
-        Err(err) => return Err((StatusCode::BAD_REQUEST, err.to_string())),
+        Err(err) => {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                ApiResponse::<T>::error(err.to_string()),
+            ))
+        }
     };
 
     let total: Total = Total {
         total: num1_parsed + num2_parsed,
-        method: "Post".to_string(),
     };
 
-    let result = serde_json::to_string_pretty(&total);
-
-    return match result {
-        Ok(result) => Ok(result),
-        Err(err) => Err((StatusCode::INTERNAL_SERVER_ERROR, err.to_string())),
-    };
+    return Ok(ApiResponse::success(total));
 }

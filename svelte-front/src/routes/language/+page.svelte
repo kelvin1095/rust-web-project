@@ -1,7 +1,5 @@
 <script lang="ts">
-    let languageList = ["Mandarin", "Japanese", "Korean"];
-
-    //   https://codepen.io/josephwong2004/pen/ExgoKde
+    let languageList = ["mandarin", "japanese", "korean"];
 
     const greetings = [
         "Hello",
@@ -17,7 +15,6 @@
     ];
 
     let greeting_display: string = "";
-    let status: string = "idle";
 
     let i = 0;
     let j = 0;
@@ -36,13 +33,11 @@
             greeting_display += greeting.charAt(i);
             i++;
         }
-        status = "idle";
         return;
     }
 
     async function deleteGreeting() {
         await delay(2000);
-        status = "typing";
         while (i > 0) {
             await delay(speed);
             greeting_display = greeting_display.substring(
@@ -51,7 +46,6 @@
             );
             i--;
         }
-        status = "idle";
         return;
     }
 
@@ -75,19 +69,13 @@
 </svelte:head>
 
 <h1>Learn a Language!</h1>
-<p>
-    I want to put a game here thats basically a mix and match using cards
-    similar to my set game
-</p>
 
 <p>
-    The end goal of this is for someone who is using this webapp to be able to
-    ask for directions and understand the directions.
-</p>
-
-<p>
-    For getting the site up and running, I think I will need to skip how to read
-    katakana, hiragana and hangul
+    The current idea is to request a learning session where the backend
+    generates 10 questions along with some session id. Answering each question
+    will send a post request and receive a message saying correct or incorrect
+    appended to some table. After answering the last question, this will 'close'
+    off the learning session.
 </p>
 
 <div id="greeting-type">
@@ -96,44 +84,37 @@
 </div>
 
 <p>
-    The current idea is to request a learning session where the backend
-    generates 10 questions along with some session id. Answering each question
-    will send a post request and a message saying correct or incorrect will be
-    returned. After answering the last question, this will 'close' off the
-    learning session.
-</p>
-
-<p>
     The exact method of how to track which was correct/incorrect still needs to
     be figured out later. Will need to track on an individual level so maybe
-    will need a table per user.
+    will need a table per user. I'm currently thinking all users would be
+    tracked via the same table. Can think of this table as a 'recent' progress
+    which another process can take this information and save it down more
+    efficiently
 </p>
+
+<div id="avaliable-language">
+    {#each languageList as language}
+        <a class="language-options" href="/language/learn-{language}">
+            {language.charAt(0).toUpperCase() + language.slice(1)}
+        </a>
+    {/each}
+</div>
+
+<p>Topics to cover are:</p>
 
 <ul>
     <li>greetings/introduction/farewells</li>
     <li>family</li>
-    <ul>
-        <li>mother, father, brother, sister</li>
-        <li>grandmother, grandfather, aunt, uncle</li>
-        <li>son, daughter, grandson, granddaughter</li>
-    </ul>
     <li>numbers</li>
-    <ul>
-        <li>time</li>
-        <li>days of the week, months</li>
-        <li>duration</li>
-        <li>money</li>
-        <li>counting</li>
-    </ul>
-    <li>adjectives</li>
-    <ul>
-        <li>front, back, left, right</li>
-        <li>early, late, fast, slow</li>
-        <li>big, small, wide, narrow</li>
-        <li>heavy, light, tall, short</li>
-        <li>hot, cold, warm, cool</li>
-        <li>colours</li>
-    </ul>
+    <li>time</li>
+    <li>duration</li>
+    <li>counting</li>
+    <li>position</li>
+    <li>speed</li>
+    <li>space</li>
+    <li>brightness</li>
+    <li>temperature</li>
+    <li>colours</li>
     <li>weather</li>
     <li>places</li>
     <ul>
@@ -143,10 +124,6 @@
     </ul>
     <li>food</li>
 </ul>
-
-{#each languageList as language, i}
-    <a href="/language/learn-{language}">{language}</a>
-{/each}
 
 <style>
     @font-face {
@@ -197,5 +174,20 @@
         100% {
             opacity: 0;
         }
+    }
+
+    #avaliable-language {
+        padding: 1rem;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+    }
+
+    .language-options {
+        flex: 1;
+        font-size: larger;
+        text-align: center;
     }
 </style>

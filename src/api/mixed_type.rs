@@ -7,6 +7,7 @@ use axum::{
 use rand::{seq::SliceRandom, thread_rng};
 use serde::Serialize;
 
+use crate::api::api_response::ApiResponse;
 use crate::api::AppState;
 
 #[derive(Serialize)]
@@ -29,13 +30,16 @@ enum QuizType {
     SentenceList(SentenceList),
 }
 
+type T = Vec<QuizType>;
+
 pub async fn quiz_list(
     State(pool): State<Arc<AppState>>,
     Path(language): Path<String>,
 ) -> Result<String, (StatusCode, String)> {
     let sentence_result = sqlx::query_as!(
         SentenceList,
-        "SELECT english_text, translated_text, broken_down FROM sentence_data
+        "SELECT english_text, translated_text, broken_down 
+        FROM sentence_data
         WHERE language = $1 
         ORDER BY RANDOM()
         LIMIT 5;",
@@ -47,7 +51,8 @@ pub async fn quiz_list(
 
     let word_result = sqlx::query_as!(
         WordList,
-        "SELECT english, translated, romanized FROM word_data
+        "SELECT english, translated, romanized 
+        FROM word_data
         WHERE language = $1 
         ORDER BY RANDOM()
         LIMIT 5;",
@@ -58,22 +63,16 @@ pub async fn quiz_list(
     .unwrap();
 
     let mut sentence_result_quiz: Vec<QuizType> = Vec::new();
-
     for word in word_result {
         sentence_result_quiz.push(QuizType::WordList(word))
     }
-
     for sentence in sentence_result {
         sentence_result_quiz.push(QuizType::SentenceList(sentence))
     }
-
     let mut rng = thread_rng();
     sentence_result_quiz.shuffle(&mut rng);
 
-    let json_result = serde_json::to_string_pretty(&sentence_result_quiz);
+    // let json_result = serde_json::to_string_pretty(&sentence_result_quiz);
 
-    return match json_result {
-        Ok(result) => Ok(result),
-        Err(err) => Err((StatusCode::INTERNAL_SERVER_ERROR, err.to_string())),
-    };
+    return Ok(ApiResponse::<T>::success(sentence_result_quiz));
 }

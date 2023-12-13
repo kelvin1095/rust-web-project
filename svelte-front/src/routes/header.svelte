@@ -18,7 +18,7 @@
 
 <header>
     <div class="headerButton"><a href="/">Home</a></div>
-    <h1>Kelvin's Coding Adventures!</h1>
+    <h1>Kelvin's Web Adventures!</h1>
     <div class="headerButton">
         {#if userInfo}
             <a href="/profile/{user_id}">{user_id}</a>

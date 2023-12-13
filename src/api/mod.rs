@@ -18,6 +18,7 @@ use crate::api::{
     word::word_list,
 };
 
+mod api_response;
 mod authorise;
 mod check_jwt;
 mod jwt_claims;

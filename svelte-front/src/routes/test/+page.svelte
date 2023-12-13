@@ -2,9 +2,9 @@
     import type { PageData } from "./$types";
 
     export let data: PageData;
-    const help = data.sentence_data;
+    const QuizQuestion = data.sentence_data;
     let button = 0;
-    $: to_display = help[button];
+    $: to_display = QuizQuestion[button];
 </script>
 
 <svelte:head>
@@ -16,18 +16,32 @@
 <p>{button}</p>
 
 <div id="japanese">
-    {#if to_display.SentenceType}
-        {to_display.SentenceType.sentence}: {to_display.SentenceType
-            .translation}
-    {:else if to_display.WordType}
-        {to_display.WordType.word}: {to_display.WordType.translation}
+    {#if to_display.SentenceList}
+        <p>{to_display.SentenceList.english_text}:</p>
+        <p>{to_display.SentenceList.translated_text}</p>
+        <ul>
+            {#each to_display.SentenceList.broken_down as words}
+                <li>{words}</li>
+            {/each}
+        </ul>
+    {:else if to_display.WordList}
+        <p>
+            {to_display.WordList.english}:
+            {to_display.WordList.translated}
+        </p>
+        <p>{to_display.WordList.romanized}</p>
     {:else}
         Hello
     {/if}
 </div>
 
-<button on:click={() => (button += 1)}>click me</button>
+<button on:click={() => (button += 1)}>Next!</button>
 <button on:click={() => (button = 0)}>reset</button>
+
+<p>
+    Please dont let the sentence count go past 10, it errors and I'm too lazy to
+    fix it right now.
+</p>
 
 <style>
     @font-face {

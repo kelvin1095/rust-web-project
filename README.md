@@ -58,6 +58,9 @@ I will need to create a few more tables. Firstly will be a table to keep track o
 ## Potential future plans
 
 -   Would be nice to have each foreign word be associated with an image as well as audio of how to pronounce the word.
+    -   Should be able to generate image and audio with generative AI.
+    -   For audio, Narakeet seems to work well from samples.
+    -   For image, there are a wide range of options (e.g. dall-e)
 -   Use openai in some capacity to be able to mark more open ended assignments (such as introduce yourself or what did you do on the weekend). Capturing this data to use to train home made model would be nice.
 -   Being able to comment on verified sentences/words (probably would need some moderating system).
 -   Translation competitions.
@@ -224,8 +227,14 @@ Change the responses to be of some form like
 
 ```json
 {
-    "status": "success",
-    "message": "success",
+    "status": "success/error",
+    "message": "optional/error message",
     "data": {}
 }
 ```
+
+I think it would be worth considering taking the ~2000 most commonly used words and formatting into a table.
+
+https://commonlyusedwords.com/2000-most-common-japanese-words/
+https://commonlyusedwords.com/2000-most-common-Chinese-words/
+https://commonlyusedwords.com/2000-most-common-Korean-words/

@@ -108,14 +108,14 @@
 <form on:submit={handleSubmit}>
     <label for="type1">Primary Type:</label>
     <select name="type1" id="type1" bind:value={type1}>
-        {#each pokemonTypes as type, i}
+        {#each pokemonTypes as type}
             <option value={type}>{type}</option>
         {/each}
     </select>
 
     <label for="type2">Secondary Type:</label>
     <select name="type2" id="type2" bind:value={type2}>
-        {#each pokemonTypes as type, i}
+        {#each pokemonTypes as type}
             <option value={type}>{type}</option>
         {/each}
     </select>
@@ -125,7 +125,7 @@
 
 <div>
     <ul>
-        {#each result as pokemon, i}
+        {#each result as pokemon}
             <li>
                 <a href="/pokemon/{pokemon.pokedex_number}">
                     #{pokemon.pokedex_number.toString().padStart(4, "0")}

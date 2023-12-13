@@ -1,5 +1,6 @@
 SELECT
     users.user_id,
+    users.username,
     user_peppers.pepper_value,
     users.hashed_password
 FROM

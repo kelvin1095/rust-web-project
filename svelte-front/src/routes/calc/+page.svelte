@@ -1,8 +1,15 @@
 <script lang="ts">
-    type ExampleResponse = {
+    type CalculationResult = {
         total: number;
-        method: string;
     };
+
+    type ApiResponseTemplate<T> = {
+        status: string;
+        message: string;
+        data: T;
+    };
+
+    type ApiResponse = ApiResponseTemplate<CalculationResult>;
 
     let result: string;
 
@@ -24,23 +31,18 @@
             body: JSON.stringify(formData),
         })
             .then((response) => {
-                if (!response.ok) {
-                    return Promise.reject(response);
+                if (response.ok) {
+                    return response.json();
                 }
-                return response.json();
-            })
-            .then((data: ExampleResponse) => {
-                console.log("success");
-                console.log(data);
-                result = `The result is: ${data.total}`;
-            })
-            .catch((error: Response) => {
-                console.log("error");
-                console.log(error);
-                error.text().then((errorMessage: string) => {
-                    console.log(errorMessage);
-                    result = `Error: ${errorMessage}`;
+                return response.json().then((errorData: ApiResponse) => {
+                    throw errorData;
                 });
+            })
+            .then((body: ApiResponse) => {
+                result = `The result is: ${body.data.total}`;
+            })
+            .catch((error: ApiResponse) => {
+                result = `Error: ${error.message}`;
             })
             .finally(() => {
                 console.log("finally");

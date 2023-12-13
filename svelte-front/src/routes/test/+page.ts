@@ -1,43 +1,53 @@
 import type { PageLoad } from "./$types";
 import { error } from "@sveltejs/kit";
 
-type WordType = {
-    word: string;
-    translation: string;
+type WordList = {
+    english: string;
+    translated: string;
+    romanized: string;
 };
 
-type SentenceType = {
-    sentence: string;
-    translation: string;
+type SentenceList = {
+    english_text: string;
+    translated_text: string;
+    broken_down: string[];
 };
 
 type MixedType = {
-    WordType?: WordType;
-    SentenceType?: SentenceType;
+    WordList?: WordList;
+    SentenceList?: SentenceList;
 };
 
-export const load: PageLoad = async ({ fetch, params }) => {
-    let help_me: MixedType[] = await fetch(`/api/example/example`)
+type ApiResponseTemplate<T> = {
+    status: string;
+    message: string;
+    data: T;
+};
+
+type ApiResponse = ApiResponseTemplate<MixedType[]>;
+
+export const load: PageLoad = async ({ fetch }) => {
+    let quiz_list: MixedType[] = await fetch(`/api/japanese/test`)
         .then((response) => {
-            if (!response.ok) {
-                throw error(response.status, "Connection Error");
+            if (response.ok) {
+                return response.json();
             }
-            return response.json();
+            return response.json().then((errorData: ApiResponse) => {
+                throw errorData;
+            });
         })
-        .then((data) => {
-            if (data.length == 0) {
-                throw error(404, "Not Found");
+        .then((data: ApiResponse) => {
+            if (data.data.length == 0) {
+                throw error(404, "Error");
             }
-            return data;
+            return data.data;
         })
         .catch((error) => {
             throw error(404, "Not Found");
         })
         .finally(() => {});
 
-    console.log(help_me);
-
     return {
-        sentence_data: help_me,
+        sentence_data: quiz_list,
     };
 };

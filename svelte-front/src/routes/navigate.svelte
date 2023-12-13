@@ -29,7 +29,7 @@
 
 <nav id="navBox">
     <ul>
-        {#each linkList as item, i}
+        {#each linkList as item}
             <li>
                 <a href={item.link}>{item.name}</a>
             </li>
