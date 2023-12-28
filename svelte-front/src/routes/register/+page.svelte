@@ -114,8 +114,8 @@
 <p>{registration}</p>
 
 <p>
-    Will need to do something about why registration failed, either username or
-    email already exist.
+    To do: reason for why registration failed, either username or email already
+    exist.
 </p>
 
 <style>

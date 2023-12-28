@@ -92,7 +92,7 @@
     efficiently
 </p>
 
-<div id="avaliable-language">
+<div id="available-language">
     {#each languageList as language}
         <a class="language-options" href="/language/learn-{language}">
             {language.charAt(0).toUpperCase() + language.slice(1)}
@@ -176,7 +176,7 @@
         }
     }
 
-    #avaliable-language {
+    #available-language {
         padding: 1rem;
         display: flex;
         flex-direction: row;

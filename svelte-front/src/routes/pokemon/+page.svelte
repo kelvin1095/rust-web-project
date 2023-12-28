@@ -95,7 +95,7 @@
 </p>
 
 <p>
-    When you seach and click on any pokemon returned, it will display name,
+    When you search and click on any pokemon returned, it will display name,
     form, type, ability, weight, height and stats.
 </p>
 

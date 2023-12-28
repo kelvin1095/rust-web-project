@@ -30,7 +30,7 @@ I will need to create a few more tables. Firstly will be a table to keep track o
     -   Reason for registration failing would be good: username already registered, email already registered or password does not match. Should be able to grab from response message or client side validation.
 -   Need to figure out a way to deliver content to the user.
     -   I have a test example of a mixed vector being sent from the back to the front. Will need to figure out how to generate quizzes in the backend. Refer to the above on how to pass this information to the user.
-    -   I want to be able to capture relationship between presented word and submitted choice too. Definitely a want for words, but still deciding on sentances.
+    -   I want to be able to capture relationship between presented word and submitted choice too. Definitely a want for words, but still deciding on sentences.
     -   Also need to figure out a way to store data that tracks user progress.
 -   I want to be implement OAuth as well so people can sign in via google, microsoft, facebook or apple.
 
@@ -188,7 +188,7 @@ DROP TABLE user_peppers;
 DROP TABLE users;
 ```
 
-### Creating a vocab list table
+### Creating a word list table
 
 I'm not sure about the category field. It may need to be changed to allow multiple categories in the future. I'm also thinking there might need to be another column to correspond with where user is up to in their learning path.
 
@@ -223,18 +223,43 @@ SELECT * FROM sentence_data WHERE broken_down @> '"は"';
 
 ## Current to do
 
-Change the responses to be of some form like
+Change the responses to be of the form below form. This should allow for easier adding of information when needed in the future via more fields.
 
 ```json
 {
     "status": "success/error",
     "message": "optional/error message",
-    "data": {}
+    "data": [
+        {
+            "WordType": {
+                "word": "Cat",
+                "translation": "猫"
+            }
+        },
+        {
+            "SentenceType": {
+                "sentence": "It is a Cat",
+                "translation": "猫です"
+            }
+        },
+        {
+            "WordType": {
+                "word": "Dog",
+                "translation": "犬"
+            }
+        },
+        {
+            "SentenceType": {
+                "word": "Is it a Dog",
+                "translation": "犬です"
+            }
+        }
+    ]
 }
 ```
 
 I think it would be worth considering taking the ~2000 most commonly used words and formatting into a table.
 
-https://commonlyusedwords.com/2000-most-common-japanese-words/
-https://commonlyusedwords.com/2000-most-common-Chinese-words/
-https://commonlyusedwords.com/2000-most-common-Korean-words/
+-   https://commonlyusedwords.com/2000-most-common-japanese-words/
+-   https://commonlyusedwords.com/2000-most-common-Chinese-words/
+-   https://commonlyusedwords.com/2000-most-common-Korean-words/

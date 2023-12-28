@@ -8,11 +8,6 @@
 <h1>Learn {language}</h1>
 
 <p>
-    I want to put a game here thats basically a mix and match using cards
-    similar to my set game
-</p>
-
-<p>
     The goal is for someone using this webapp to be able to speak communicate
     simple questions and understand simple responses, good enough to be able to
     travel.
