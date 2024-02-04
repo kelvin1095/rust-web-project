@@ -4,29 +4,18 @@
     export let data: PageData;
     const QuizQuestion = data.sentence_data;
 
+    console.log(QuizQuestion);
+
     let response: number[] = [];
 
-    ///
-    let test = ["hello", "my", "name", "is", "kelvin"];
-
     function getStringsAtIndex(array: string[], indices: number[]) {
-        // Ensure that the indices are valid
         const validIndices = indices.filter(
             (index) => index >= 0 && index < array.length
         );
-
-        // Map the valid indices to their corresponding strings
         const result = validIndices.map((index) => array[index]);
 
-        // Join the strings to form the final output
         return result.join(" ");
     }
-
-    // Example usage with indices 1, 3, and 2
-    let selectedStrings = getStringsAtIndex(test, [1, 3, 2]);
-
-    console.log(selectedStrings);
-    ///
 
     function add_to_response(index: number) {
         if (response.includes(index)) {
@@ -40,7 +29,6 @@
 
     let button = 0;
     $: to_display = QuizQuestion[button];
-    // let test = to_display.SentenceList.broken_down;
 
     function submit_answer() {
         button += 1;
@@ -60,7 +48,14 @@
     {#if to_display.SentenceList}
         <p id="text">{to_display.SentenceList.english_text}</p>
         <p>{to_display.SentenceList.translated_text}</p>
-        <p>{response}</p>
+        <div id="response">
+            <p id="response-sentence">
+                {getStringsAtIndex(
+                    to_display.SentenceList.broken_down,
+                    response
+                )}
+            </p>
+        </div>
         <div class="build-sentence">
             {#each to_display.SentenceList.broken_down as words, i}
                 <button
@@ -85,7 +80,7 @@
 </div>
 
 <button on:click={submit_answer}>Next!</button>
-<button on:click={() => (button = 0)}>Reset</button>
+<button on:click={() => (button = 0)}>Reset Quiz</button>
 
 <p>
     Please don't let the sentence count go past 10. It errors and I'm too lazy
@@ -110,6 +105,18 @@
 
     #translated-word {
         margin-bottom: 0;
+    }
+
+    #response {
+        display: flex;
+        border-style: solid;
+        height: 8rem;
+        /* justify-content: center; */
+        align-items: center;
+    }
+
+    #response-sentence {
+        padding: 3rem;
     }
 
     #japanese {
@@ -140,6 +147,7 @@
         box-shadow:
             5px 0 5px rgba(0, 0, 0, 0.5),
             5px 0 5px rgba(0, 0, 0, 0.5);
+        margin-top: 3rem;
     }
 
     .sentence-broken-down:hover {

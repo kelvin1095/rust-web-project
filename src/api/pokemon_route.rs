@@ -14,6 +14,7 @@ struct Pokemon {
     pokedex_number: Option<i32>,
     name: Option<String>,
     form: Option<String>,
+    category: Option<String>,
     type_1: Option<String>,
     type_2: Option<String>,
     ability_1: Option<String>,

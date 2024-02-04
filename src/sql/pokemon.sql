@@ -2,6 +2,7 @@ SELECT
     pokedex_number,
     name,
     form,
+    category,
     type_1,
     type_2,
     ability_1,

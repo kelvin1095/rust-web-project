@@ -52,8 +52,6 @@
     <title>Login</title>
 </svelte:head>
 
-<p>Please note that the "Forget Password" route currently does not exist.</p>
-
 <form id="login-form" on:submit={handleSubmit}>
     <div id="input-fields">
         <label for="id">Username or Email:</label>
@@ -70,7 +68,7 @@
 
 <div id="login-options">
     <a href="/register">Create Account</a>
-    <a href="/passwordreset">Forgot Password?</a>
+    <a href="/reset_password">Forgot Password?</a>
 </div>
 
 {error_message}

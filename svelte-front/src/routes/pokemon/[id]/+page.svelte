@@ -18,7 +18,9 @@
         {pokemon.name}
         {pokemon.form ? "(" + pokemon.form + ")" : ""}
     </h1>
-
+    <h2>
+        {pokemon.category}
+    </h2>
     <div class="image">
         <img
             src="/image/PokemonHome/{pokemon.pokemon_image}"
@@ -115,6 +117,10 @@
 
 <style>
     h1 {
+        text-align: center;
+    }
+
+    h2 {
         text-align: center;
     }
 

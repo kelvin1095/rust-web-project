@@ -5,6 +5,7 @@ type PokemonInfo = {
     pokedex_number: number;
     name: string;
     form: string;
+    category: string;
     type_1: string;
     type_2: string;
     ability_1: string;

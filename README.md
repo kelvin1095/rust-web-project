@@ -37,10 +37,11 @@ I will need to create a few more tables. Firstly will be a table to keep track o
 ### Frontend:
 
 -   Better Design (Never ending).
+-   I want to add functionality where user can select a word and it will show the meaning.
 -   Displaying the quiz after receiving data from the backend:
     -   A game of mix and match. 5 seems like a good number.
-    -   Multiple choice with 4 options.
     -   Build sentences using provided blocks.
+    -   Multiple choice with 4 options.
 
 ### Database:
 
@@ -86,8 +87,30 @@ CREATE TABLE pokemon (
   Pokedex_Number INT NOT NULL,
   Name VARCHAR(50) NOT NULL,
   Form VARCHAR(50),
+  Category VARCHAR(50) NOT NULL,
   Type_1 pokemon_type NOT NULL,
   Type_2 pokemon_type,
+  Ability_1 VARCHAR(50) NOT NULL,
+  Ability_2 VARCHAR(50),
+  Hidden_Ability VARCHAR(50),
+  HP INT NOT NULL,
+  Att INT NOT NULL,
+  Def INT NOT NULL,
+  SpA INT NOT NULL,
+  SpD INT NOT NULL,
+  Spe INT NOT NULL,
+  Height REAL,
+  Weight REAL,
+  Pokemon_Image VARCHAR(50) NOT NULL
+  );
+
+CREATE TABLE pokemon (
+  Pokedex_Number INT NOT NULL,
+  Name VARCHAR(50) NOT NULL,
+  Form VARCHAR(50),
+  Category VARCHAR(50) NOT NULL,
+  Type_1 VARCHAR(50) NOT NULL,
+  Type_2 VARCHAR(50),
   Ability_1 VARCHAR(50) NOT NULL,
   Ability_2 VARCHAR(50),
   Hidden_Ability VARCHAR(50),
