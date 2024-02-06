@@ -38,7 +38,7 @@ export const load: PageLoad = async ({ fetch }) => {
         })
         .then((data: ApiResponse) => {
             if (data.data.length == 0) {
-                throw error(404, "Error");
+                error(404, "Error");
             }
             return data.data;
         })

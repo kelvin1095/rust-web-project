@@ -10,7 +10,7 @@ use serde::Serialize;
 use crate::api::api_response::ApiResponse;
 use crate::api::AppState;
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone, Debug)]
 struct WordList {
     english: String,
     translated: String,
@@ -26,7 +26,7 @@ struct SentenceList {
 
 #[derive(Serialize)]
 enum QuizType {
-    WordList(WordList),
+    WordList(Vec<WordList>),
     SentenceList(SentenceList),
 }
 
@@ -55,15 +55,20 @@ pub async fn quiz_list(
         FROM word_data
         WHERE language = $1 
         ORDER BY RANDOM()
-        LIMIT 5;",
+        LIMIT 25;",
         language,
     )
     .fetch_all(&pool.connection_pool)
     .await
     .unwrap();
 
+    let grouped_word_list: Vec<Vec<WordList>> =
+        word_result.chunks(5).map(|chunk| chunk.to_vec()).collect();
+
+    // println!("{:?}", grouped_word_list);
+
     let mut sentence_result_quiz: Vec<QuizType> = Vec::new();
-    for word in word_result {
+    for word in grouped_word_list {
         sentence_result_quiz.push(QuizType::WordList(word))
     }
     for sentence in sentence_result {

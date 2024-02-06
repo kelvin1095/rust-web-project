@@ -26,13 +26,13 @@ export const load: PageLoad = async ({ fetch, params }) => {
     const pokemonData = await fetch(`/api/pokemon/${params.id}`);
 
     if (!pokemonData.ok) {
-        throw error(pokemonData.status, "Connection Error");
+        error(pokemonData.status, "Connection Error");
     }
 
     const pokemonInfo: PokemonInfo[] = await pokemonData.json();
 
     if (pokemonInfo.length == 0) {
-        throw error(pokemonData.status, "Not Found");
+        error(pokemonData.status, "Not Found");
     }
 
     return {

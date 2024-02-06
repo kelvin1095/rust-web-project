@@ -5,7 +5,7 @@ export const load: PageLoad = async ({ params }) => {
     let username = localStorage.getItem("username");
 
     if (username != params.id) {
-        throw error(401, "Unauthorised");
+        error(401, "Unauthorised");
     }
 
     return {

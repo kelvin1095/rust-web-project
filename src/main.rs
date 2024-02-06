@@ -15,6 +15,9 @@ mod api;
 mod static_files;
 use crate::static_files::serve_static_files;
 
+// mod shutdown;
+// use crate::shutdown::shutdown_signal;
+
 #[tokio::main]
 async fn main() {
     dotenv().expect("Missing dotenv file");
@@ -47,7 +50,7 @@ async fn main() {
             HeaderValue::from_static("nosniff"),
         ))
         .layer(TraceLayer::new_for_http())
-        .layer(TimeoutLayer::new(Duration::from_secs(2)));
+        .layer(TimeoutLayer::new(Duration::from_secs(5)));
 
     let app = Router::new()
         .merge(api_routes(pool))
@@ -55,6 +58,7 @@ async fn main() {
         .layer(middleware);
 
     axum::serve(listener, app)
+        // .with_graceful_shutdown(shutdown_signal())
         .await
         .expect("Server failed to start");
 }

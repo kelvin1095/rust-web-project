@@ -4,8 +4,6 @@
     export let data: PageData;
     const QuizQuestion = data.sentence_data;
 
-    console.log(QuizQuestion);
-
     let response: number[] = [];
 
     function getStringsAtIndex(array: string[], indices: number[]) {
@@ -24,15 +22,40 @@
             response.push(index);
         }
         response = response;
-        console.log(response);
     }
 
     let button = 0;
     $: to_display = QuizQuestion[button];
 
     function submit_answer() {
+        console.log(response);
         button += 1;
         response = [];
+
+        // fetch("/api/sum", {
+        //     method: "POST",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify(formData),
+        // })
+        //     .then((response) => {
+        //         if (response.ok) {
+        //             return response.json();
+        //         }
+        //         return response.json().then((errorData: ApiResponse) => {
+        //             throw errorData;
+        //         });
+        //     })
+        //     .then((body: ApiResponse) => {
+        //         result = `The result is: ${body.data.total}`;
+        //     })
+        //     .catch((error: ApiResponse) => {
+        //         result = `Error: ${error.message}`;
+        //     })
+        //     .finally(() => {
+        //         console.log("finally");
+        //     });
     }
 </script>
 
@@ -123,7 +146,9 @@
         font-family: "Noto Sans JP";
         font-size: xx-large;
         border-style: solid;
+        border-radius: 40px;
         padding: 3rem;
+        margin: 1rem;
     }
 
     .build-sentence {

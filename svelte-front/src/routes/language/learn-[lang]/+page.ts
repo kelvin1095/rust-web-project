@@ -5,7 +5,7 @@ export const load: PageLoad = async ({ params }) => {
     let valid_languages = ["japanese", "korean", "mandarin"];
     let language = params.lang;
     if (!valid_languages.includes(language)) {
-        throw error(404, { message: "invalid language" });
+        error(404, { message: "invalid language" });
     }
 
     return {
