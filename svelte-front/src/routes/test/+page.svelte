@@ -4,6 +4,8 @@
     export let data: PageData;
     const QuizQuestion = data.sentence_data;
 
+    console.log(QuizQuestion);
+
     let response: number[] = [];
 
     function getStringsAtIndex(array: string[], indices: number[]) {
@@ -92,11 +94,25 @@
             {/each}
         </div>
     {:else if to_display.WordList}
-        <p id="word">
-            {to_display.WordList.english}:
-            {to_display.WordList.romanized}
-        </p>
-        <p id="translated-word">{to_display.WordList.translated}</p>
+        <ul id="word">
+            {#each to_display.WordList as { english }}
+                <li>
+                    <button>
+                        {english}
+                    </button>
+                </li>
+            {/each}
+        </ul>
+
+        <ul id="translated">
+            {#each to_display.WordList as { translated }}
+                <li>
+                    <button>
+                        {translated}
+                    </button>
+                </li>
+            {/each}
+        </ul>
     {:else}
         Hello
     {/if}
@@ -123,23 +139,22 @@
     }
 
     #word {
-        margin-top: 0;
+        font-family: "Noto Sans JP";
     }
 
-    #translated-word {
-        margin-bottom: 0;
+    #translated {
+        font-family: "Noto Sans JP";
     }
 
     #response {
         display: flex;
         border-style: solid;
         height: 8rem;
-        /* justify-content: center; */
         align-items: center;
     }
 
     #response-sentence {
-        padding: 3rem;
+        padding: 12rem;
     }
 
     #japanese {

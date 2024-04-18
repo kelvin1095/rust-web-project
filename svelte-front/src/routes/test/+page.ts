@@ -14,7 +14,7 @@ type SentenceList = {
 };
 
 type MixedType = {
-    WordList?: WordList;
+    WordList?: WordList[];
     SentenceList?: SentenceList;
 };
 
