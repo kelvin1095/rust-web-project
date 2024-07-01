@@ -88,27 +88,6 @@ CREATE TABLE pokemon (
   Name VARCHAR(50) NOT NULL,
   Form VARCHAR(50),
   Category VARCHAR(50) NOT NULL,
-  Type_1 pokemon_type NOT NULL,
-  Type_2 pokemon_type,
-  Ability_1 VARCHAR(50) NOT NULL,
-  Ability_2 VARCHAR(50),
-  Hidden_Ability VARCHAR(50),
-  HP INT NOT NULL,
-  Att INT NOT NULL,
-  Def INT NOT NULL,
-  SpA INT NOT NULL,
-  SpD INT NOT NULL,
-  Spe INT NOT NULL,
-  Height REAL,
-  Weight REAL,
-  Pokemon_Image VARCHAR(50) NOT NULL
-  );
-
-CREATE TABLE pokemon (
-  Pokedex_Number INT NOT NULL,
-  Name VARCHAR(50) NOT NULL,
-  Form VARCHAR(50),
-  Category VARCHAR(50) NOT NULL,
   Type_1 VARCHAR(50) NOT NULL,
   Type_2 VARCHAR(50),
   Ability_1 VARCHAR(50) NOT NULL,
@@ -286,3 +265,22 @@ I think it would be worth considering taking the ~2000 most commonly used words 
 -   https://commonlyusedwords.com/2000-most-common-japanese-words/
 -   https://commonlyusedwords.com/2000-most-common-Chinese-words/
 -   https://commonlyusedwords.com/2000-most-common-Korean-words/
+
+docker volume create pgdata
+docker network create app-network
+
+docker pull postgres
+
+docker run -d \
+ --name postgres \
+ -e POSTGRES_PASSWORD=password \
+ -v pgdata:/var/lib/postgresql/data \
+ --network app-network \
+ -p 3500:5432 \
+ postgres
+
+docker exec -it postgres bash
+psql -h localhost -U postgres -p 5432
+
+docker build --network=app-network -t test .
+docker run -p 3000:3000 --network app-network test
